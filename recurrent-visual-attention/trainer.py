@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 
 from torch.autograd import Variable
-from torch.optim import Adam
+from torch.optim import Adam, SGD
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 import os
@@ -61,8 +61,7 @@ class Trainer(object):
             self.test_loader = data_loader
             self.num_test = len(self.test_loader.dataset)
             self.num_channels = self.test_loader.dataset[0][0].shape[-1]
-        self.num_classes = 10
-        print(self.num_channels)
+        self.num_classes = 17
 
         # training params
         self.epochs = config.epochs
@@ -116,7 +115,9 @@ class Trainer(object):
             sum([p.data.nelement() for p in self.model.parameters()])))
 
         # initialize optimizer and scheduler
-        self.optimizer = Adam(self.model.parameters(), lr=self.lr)
+        self.optimizer = SGD(
+                self.model.parameters(), lr=self.lr, momentum=self.momentum
+                )
         self.scheduler = ReduceLROnPlateau(self.optimizer, 'min')
 
     def reset(self):
