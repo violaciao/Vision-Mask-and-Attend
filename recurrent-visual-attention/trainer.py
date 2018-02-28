@@ -115,9 +115,10 @@ class Trainer(object):
             sum([p.data.nelement() for p in self.model.parameters()])))
 
         # initialize optimizer and scheduler
-        self.optimizer = SGD(
-                self.model.parameters(), lr=self.lr, momentum=self.momentum
-                )
+        #self.optimizer = SGD(
+        #        self.model.parameters(), lr=self.lr, momentum=self.momentum
+        #        )
+        self.optimizer = Adam(self.model.parameters(), lr=self.lr)
         self.scheduler = ReduceLROnPlateau(self.optimizer, 'min')
 
     def reset(self):

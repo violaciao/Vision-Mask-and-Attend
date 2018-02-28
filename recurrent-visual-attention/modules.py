@@ -18,7 +18,7 @@ class retina(object):
 
     Args
     ----
-    - x: a 4D Tensor of shape (B, H, W, C). The minibatch
+    - x: a 4D Tensor of shape (B, C, H, W). The minibatch
       of images.
     - l: a 2D Tensor of shape (B, 2). Contains normalized
       coordinates in the range [-1, 1].
@@ -74,7 +74,7 @@ class retina(object):
 
         Args
         ----
-        - x: a 4D Tensor of shape (B, H, W, C). The minibatch
+        - x: a 4D Tensor of shape (B, C, H, W). The minibatch
           of images.
         - l: a 2D Tensor of shape (B, 2).
         - size: a scalar defining the size of the extracted patch.
@@ -83,7 +83,7 @@ class retina(object):
         -------
         - patch: a 4D Tensor of shape (B, size, size, C)
         """
-        B, H, W, C = x.shape
+        B, C, H, W = x.shape
         T = min(H, W)
 
         # denormalize coords of patch center
@@ -112,9 +112,9 @@ class retina(object):
             if self.exceeds(from_x, to_x, from_y, to_y, T):
                 pad = size
                 pad_dims = (
+                    pad, pad, 
+                    pad, pad, 
                     0, 0,
-                    pad, pad, 
-                    pad, pad, 
                     0, 0,
                 )
                 im = F.pad(im, pad_dims, "constant", 0)
@@ -126,7 +126,7 @@ class retina(object):
                 to_y += pad
 
             # and finally extract
-            patch.append(im[:, from_y:to_y, from_x:to_x, :])
+            patch.append(im[:, :, from_y:to_y, from_x:to_x])
 
         # concatenate into a single tensor
         patch = torch.cat(patch)
