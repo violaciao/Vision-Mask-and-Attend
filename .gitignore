@@ -1,5 +1,6 @@
 *.p
 *.mp4
+*data/*
 data/processed/
 data/raw/
 logs/

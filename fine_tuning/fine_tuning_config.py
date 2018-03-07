@@ -1,0 +1,23 @@
+# Learning rate parameters
+BASE_LR = 0.001
+EPOCH_DECAY = 30 # number of epochs after which the Learning rate is decayed exponentially.
+DECAY_WEIGHT = 0.1 # factor by which the learning rate is reduced.
+
+
+# DATASET INFO
+NUM_CLASSES = 3 # set the number of classes in dataset
+DATA_DIR = 'absolute path of dataset'
+
+# DATALOADER PROPERTIES
+BATCH_SIZE = 10 # Set as high as possible if there are not out of memory error.
+
+
+### GPU SETTINGS
+CUDA_DEVICE = 0 # Enter device ID of the gpu if to run on gpu. Otherwise neglect.
+GPU_MODE = 0 # set to 1 if run on gpu.
+
+
+# SETTINGS FOR DISPLAYING ON TENSORBOARD
+USE_TENSORBOARD = 0 #if you want to use tensorboard set this to 1.
+TENSORBOARD_SERVER = "YOUR TENSORBOARD SERVER ADDRESS HERE" 
+EXP_NAME = "fine_tuning_experiment" # if using tensorboard, enter name of experiment want to be displayed as.
