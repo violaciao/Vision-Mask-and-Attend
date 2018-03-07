@@ -53,23 +53,23 @@ data_transforms = {
     ]),
 }
 
-## So, the structure looks like this : 
+## the structure looks like this : 
 # data_dar
 #      |- train 
-#            |- dogs
-#                 |- dog_image_1
-#                 |- dog_image_2
+#            |- roses
+#                 |- rose_image_1
+#                 |- rose_image_2
 #                        .....
 
-#            |- cats
-#                 |- cat_image_1
-#                 |- cat_image_1
+#            |- sunflowers
+#                 |- sunflower_image_1
+#                 |- sunflower_image_1
 #                        .....
-#            |- humans
+#            |- lilies
 #      |- val
-#            |- dogs
-#            |- cats
-#            |- humans
+#            |- roses
+#            |- sunflowers
+#            |- lilies
 
 data_dir = DATA_DIR
 dsets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x])
