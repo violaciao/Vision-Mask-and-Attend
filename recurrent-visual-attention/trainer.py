@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.optim import Adam, SGD
 from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.nn.utils import clip_grad_norm
 
 import os
 import time
@@ -56,11 +57,11 @@ class Trainer(object):
             self.valid_loader = data_loader[1]
             self.num_train = len(self.train_loader.dataset)
             self.num_valid = len(self.valid_loader.dataset)
-            self.num_channels = self.train_loader.dataset[0][0].shape[-1]
+            self.num_channels = self.train_loader.dataset[0][0].shape[0]
         else:
             self.test_loader = data_loader
             self.num_test = len(self.test_loader.dataset)
-            self.num_channels = self.test_loader.dataset[0][0].shape[-1]
+            self.num_channels = self.test_loader.dataset[0][0].shape[0]
         self.num_classes = 17
 
         # training params
@@ -210,6 +211,7 @@ class Trainer(object):
         tic = time.time()
         #with tqdm(total=self.num_train) as pbar:
         for i, (x, y) in enumerate(self.train_loader):
+            y = y.squeeze()
             if self.use_gpu:
                 x, y = x.cuda(), y.cuda()
             x, y = Variable(x), Variable(y)
@@ -286,6 +288,7 @@ class Trainer(object):
             # compute gradients and update SGD
             self.optimizer.zero_grad()
             loss.backward()
+            clip_grad_norm(self.model.parameters(), 1)
             self.optimizer.step()
 
             # measure elapsed time
@@ -331,6 +334,7 @@ class Trainer(object):
         accs = AverageMeter()
 
         for i, (x, y) in enumerate(self.valid_loader):
+            y = y.squeeze()
             if self.use_gpu:
                 x, y = x.cuda(), y.cuda()
             x, y = Variable(x), Variable(y)
