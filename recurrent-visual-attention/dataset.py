@@ -8,14 +8,14 @@ from torch.utils.data import Dataset, DataLoader
 class FlowerDataset(Dataset):
 
     def __init__(self, data):
-        self.data = torch.stack([torch.FloatTensor(d[0]) for d in data])
-        self.label = torch.LongTensor([d[1] for d in data])
+        self.data = [d[0] for d in data]
+        self.label = [d[1] for d in data]
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, i):
-        return self.data[i], self.label[i]
+        return torch.FloatTensor(self.data[i]), torch.LongTensor([self.label[i]])
         
 
 def load_data(data_dir, valid_size, random_seed):
@@ -30,8 +30,6 @@ def load_data(data_dir, valid_size, random_seed):
     train_data = []
     valid_data = []
     random.seed(random_seed)
-    H = 0
-    W = 0
 
     for i in range(num_labels):
         idx = list(range(num_per_label))
@@ -40,30 +38,10 @@ def load_data(data_dir, valid_size, random_seed):
         for j in idx[split:]:
             img = scipy.misc.imread(files[i*num_per_label+j]) / 255.0
             train_data.append([img, i])
-            H = max(H, img.shape[0])
-            W = max(W, img.shape[1])
 
         for j in idx[:split]:
             img = scipy.misc.imread(files[i*num_per_label+j]) / 255.0
             valid_data.append([img, i])
-            H = max(H, img.shape[0])
-            W = max(W, img.shape[1])
-
-    # pad images to the same dimension
-    def __pad(x):
-        for i in range(len(x)):
-            h_pad = W - x[i][0].shape[1]
-            left_pad = h_pad // 2
-            right_pad = h_pad - left_pad
-            v_pad = H - x[i][0].shape[0]
-            top_pad = v_pad // 2
-            bottom_pad = v_pad - top_pad
-            x[i][0] = np.pad(x[i][0], 
-                    ((top_pad, bottom_pad), (left_pad, right_pad), (0, 0)), 
-                    mode='constant', constant_values=(0, 0))
-
-    __pad(train_data)
-    __pad(valid_data)
 
     return train_data, valid_data
 
@@ -165,3 +143,21 @@ def get_test_loader(data_dir,
     )
 
     return data_loader
+
+
+if __name__ == '__main__':
+    import sys, glob, os
+    from PIL import Image
+
+    from_dir = sys.argv[1]
+    to_dir = sys.argv[2]
+    size = int(sys.argv[3])
+    if not os.path.exists(to_dir):
+        os.system('mkdir -p %s' % to_dir)
+
+    files = glob.glob(os.path.join(from_dir, '*.jpg'))
+    for f in files:
+        name = f.split('/')[-1]
+        img = Image.open(f)
+        img = img.resize((size, size), Image.ANTIALIAS)
+        img.save(os.path.join(to_dir, name))
