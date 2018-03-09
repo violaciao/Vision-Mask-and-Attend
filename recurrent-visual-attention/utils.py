@@ -124,7 +124,7 @@ def plot_images(images, gd_truth):
 
 
 def prepare_dirs(config):
-    for path in [config.data_dir, config.ckpt_dir, config.logs_dir]:
+    for path in [config.data_dir, config.ckpt_dir, config.logs_dir, config.viz_dir]:
         if not os.path.exists(path):
             os.makedirs(path)
 
