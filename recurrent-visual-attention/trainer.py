@@ -86,8 +86,8 @@ class Trainer(object):
         self.resume = config.resume
         self.print_freq = config.print_freq
         self.plot_freq = config.plot_freq
-        self.model_name = 'ram_{}_{}x{}_{}'.format(
-            config.num_glimpses, config.patch_size,
+        self.model_name = 'ram_{}_{}_{}_{}'.format(
+            config.num_glimpses, config.num_patches,
             config.patch_size, config.glimpse_scale
         )
 

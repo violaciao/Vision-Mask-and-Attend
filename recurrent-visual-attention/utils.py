@@ -130,8 +130,8 @@ def prepare_dirs(config):
 
 
 def save_config(config):
-    model_name = 'ram_{}_{}x{}_{}'.format(
-        config.num_glimpses, config.patch_size,
+    model_name = 'ram_{}_{}_{}_{}'.format(
+        config.num_glimpses, config.num_patches,
         config.patch_size, config.glimpse_scale
     )
     filename = model_name + '_params.json'
