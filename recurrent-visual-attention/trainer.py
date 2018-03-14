@@ -133,7 +133,7 @@ class Trainer(object):
         h_t = torch.zeros(self.batch_size, self.hidden_size)
         h_t = Variable(h_t)
 
-        l_t = torch.Tensor(self.batch_size, 2).uniform_(-1, 1)
+        l_t = torch.Tensor(self.batch_size, 2).normal_(0, 0.1)
         l_t = Variable(l_t)
 
         return h_t, l_t
