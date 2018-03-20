@@ -43,19 +43,28 @@ We list the hyperparameters and their performances.
 
 |  | #patches | #glimpses | patch size | accuracy |
 |:--:|:--------:|:---------:|:----------:|:--------:|
-1 | 3 | 4 | 10 | 50.0
-2 | 3 | 4 | 15 | 55.1
-3 | 3 | 4 | 20 | 58.1
-4 | 3 | 6 | 10 | 52.2
-5 | 3 | 6 | 15 | 52.9
-6 | 3 | 6 | 20 | 35.0
-7 | 3 | 8 | 10 | 52.2
-8 | 3 | 8 | 15 | 57.4
-9 | 3 | 8 | 20 | 54.4
+1 | 2 | 4 | 10 | 51.5
+2 | 2 | 4 | 15 | 52.9
+3 | 2 | 4 | 20 | 53.7
+4 | 2 | 6 | 10 | 52.9
+5 | 2 | 6 | 15 | 55.1
+6 | 2 | 6 | 20 | 44.1
+7 | 2 | 8 | 10 | 57.4
+8 | 2 | 8 | 15 | 39.0
+9 | 2 | 8 | 20 | 42.6
+10 | 3 | 4 | 10 | 50.0
+11 | 3 | 4 | 15 | 55.1
+12 | 3 | 4 | 20 | 58.1
+13 | 3 | 6 | 10 | 52.2
+14 | 3 | 6 | 15 | 52.9
+15 | 3 | 6 | 20 | 35.0
+16 | 3 | 8 | 10 | 52.2
+17 | 3 | 8 | 15 | 57.4
+18 | 3 | 8 | 20 | 54.4
 
 ## Visualization
 
-We select Model 8 as an example to visualize the location the model attends. As a result, the model pays attention to the upper left region of the image.
+We select Model **17** as an example to visualize the location the model attends. As a result, the model pays attention to the upper left region of the image.
 
 <p align="center">
 <img src="./viz/viz_0.jpg" alt="Drawing", width=70%>
