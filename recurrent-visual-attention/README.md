@@ -58,21 +58,21 @@ We list the hyperparameters and their performances.
 We select Model 8 as an example to visualize the location the model attends. As a result, the model pays attention to the upper left region of the image.
 
 <p align="center">
-<img src="./viz/viz_0.jpg" alt="Drawing", width=70%>
+<img src="./viz/viz_0.jpg" alt="Drawing", width=150%>
 </p>
 <p align="center">
-<img src="./viz/viz_1.jpg" alt="Drawing", width=70%>
+<img src="./viz/viz_1.jpg" alt="Drawing", width=150%>
 </p>
 <p align="center">
-<img src="./viz/viz_2.jpg" alt="Drawing", width=70%>
+<img src="./viz/viz_2.jpg" alt="Drawing", width=150%>
 </p>
 <p align="center">
-<img src="./viz/viz_3.jpg" alt="Drawing", width=70%>
+<img src="./viz/viz_3.jpg" alt="Drawing", width=150%>
 </p>
 <p align="center">
-<img src="./viz/viz_4.jpg" alt="Drawing", width=70%>
+<img src="./viz/viz_4.jpg" alt="Drawing", width=150%>
 </p>
 <p align="center">
-<img src="./viz/viz_5.jpg" alt="Drawing", width=70%>
+<img src="./viz/viz_5.jpg" alt="Drawing", width=150%>
 </p>
 
