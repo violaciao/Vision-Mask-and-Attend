@@ -98,6 +98,8 @@ misc_arg.add_argument('--print_freq', type=int, default=10,
                       help='How frequently to print training details')
 misc_arg.add_argument('--plot_freq', type=int, default=1,
                       help='How frequently to plot glimpses')
+misc_arg.add_argument('--viz_dir', type=str, default='./viz/',
+                      help='Directory in which attention is visualized')
 
 
 def get_config():

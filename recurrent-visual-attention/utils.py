@@ -124,14 +124,14 @@ def plot_images(images, gd_truth):
 
 
 def prepare_dirs(config):
-    for path in [config.data_dir, config.ckpt_dir, config.logs_dir]:
+    for path in [config.data_dir, config.ckpt_dir, config.logs_dir, config.viz_dir]:
         if not os.path.exists(path):
             os.makedirs(path)
 
 
 def save_config(config):
-    model_name = 'ram_{}_{}x{}_{}'.format(
-        config.num_glimpses, config.patch_size,
+    model_name = 'ram_{}_{}_{}_{}'.format(
+        config.num_glimpses, config.num_patches,
         config.patch_size, config.glimpse_scale
     )
     filename = model_name + '_params.json'
