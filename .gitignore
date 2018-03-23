@@ -1,11 +1,13 @@
 *.p
 *.mp4
-*data/*
+*data*/*
 data/processed/
 data/raw/
 logs/
 ckpt/
 .DS_Store
+*.s
+fine_tuning/*.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -54,7 +54,7 @@ data_transforms = {
 }
 
 ## the structure looks like this : 
-# data_dar
+# data_dir
 #      |- train 
 #            |- roses
 #                 |- rose_image_1
@@ -63,9 +63,11 @@ data_transforms = {
 
 #            |- sunflowers
 #                 |- sunflower_image_1
-#                 |- sunflower_image_1
+#                 |- sunflower_image_2
 #                        .....
 #            |- lilies
+#                 |- lilies_image_1
+#                        .....
 #      |- val
 #            |- roses
 #            |- sunflowers
@@ -73,7 +75,7 @@ data_transforms = {
 
 data_dir = DATA_DIR
 dsets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x])
-         for x in ['train', 'val']}
+         for x in ['train', 'val'] if not x.startswith('.DS_Store')}
 dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size=BATCH_SIZE,
                                                shuffle=True, num_workers=25)
                 for x in ['train', 'val']}
@@ -114,8 +116,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=100):
                 # wrap them in Variable
                 if use_gpu:
                     try:
-                        inputs, labels = Variable(inputs.float().cuda()),                             
-                        Variable(labels.long().cuda())
+                        inputs, labels = Variable(inputs.float().cuda()), Variable(labels.long().cuda())
                     except:
                         print(inputs,labels)
                 else:
@@ -127,7 +128,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=100):
                 _, preds = torch.max(outputs.data, 1)
                 
                 loss = criterion(outputs, labels)
-                print('loss done')                
+                # print('loss done')                
                 # Just so that you can keep track that something's happening and don't feel like the program isn't running.
                 if counter%50==0:
                     print("Reached iteration ",counter)
@@ -135,11 +136,11 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=100):
 
                 # backward + optimize only if in training phase
                 if phase == 'train':
-                    print('loss backward')
+                    # print('loss backward')
                     loss.backward()
-                    print('done loss backward')
+                    # print('done loss backward')
                     optimizer.step()
-                    print('done optim')
+                    # print('done optim')
                 # print evaluation statistics
                 try:
                     running_loss += loss.data[0]
@@ -208,4 +209,10 @@ model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
                        num_epochs=100)
 
 # Save model
-model_ft.save_state_dict('fine_tuned_best_model.pt')
+torch.save(model_ft.state_dict(), 'model_ft_fl5.pt')
+
+
+
+
+
+
