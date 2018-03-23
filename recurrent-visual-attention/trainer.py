@@ -42,6 +42,7 @@ class Trainer(object):
         self.num_patches = config.num_patches
         self.loc_hidden = config.loc_hidden
         self.glimpse_hidden = config.glimpse_hidden
+        self.kernel_size = config.kernel_size
 
         # core network params
         self.num_glimpses = config.num_glimpses
@@ -107,7 +108,7 @@ class Trainer(object):
         self.model = RecurrentAttention(
             self.patch_size, self.num_patches, self.glimpse_scale,
             self.num_channels, self.glimpse_hidden, self.loc_hidden,
-            self.std, self.hidden_size, self.num_classes,
+            self.std, self.hidden_size, self.num_classes, self.kernel_size
         )
         if self.use_gpu:
             self.model.cuda()

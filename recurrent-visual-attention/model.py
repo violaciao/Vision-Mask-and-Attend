@@ -33,7 +33,8 @@ class RecurrentAttention(nn.Module):
                  h_l,
                  std,
                  hidden_size,
-                 num_classes):
+                 num_classes, 
+                 kernel_size):
         """
         Initialize the recurrent attention model and its
         different components.
@@ -52,11 +53,12 @@ class RecurrentAttention(nn.Module):
         - num_classes: number of classes in the dataset.
         - num_glimpses: number of glimpses to take per image,
           i.e. number of BPTT steps.
+        - kernel_size: list of int, convolutional kernel size in stacked RAM
         """
         super(RecurrentAttention, self).__init__()
         self.std = std
 
-        self.sensor = glimpse_network(h_g, h_l, g, k, s, c)
+        self.sensor = glimpse_network(h_g, h_l, g, k, s, c, kernel_size)
         self.rnn = core_network(h_g + h_l, hidden_size)
         self.locator = location_network(hidden_size, 2, std)
         self.classifier = action_network(hidden_size, num_classes)
