@@ -69,7 +69,7 @@ class retina(object):
         # concatenate into a single tensor and flatten
         phi = torch.cat(phi, 1)
         if self.kernel_size > 0:
-            phi = self.conv(phi)
+            phi = F.max_pool2d(self.conv(phi), 2)
         phi = phi.view(phi.shape[0], -1)
 
         return phi
@@ -209,6 +209,8 @@ class glimpse_network(nn.Module):
             D_in *= 2
             self.conv = nn.Conv2d(c, c, 
                     self.kernel_size, padding=self.kernel_size//2)
+        if kernel_size[1] > 0:
+            D_in = D_in // 4
 
         self.fc1 = nn.Linear(D_in, h_g)
 
@@ -223,9 +225,8 @@ class glimpse_network(nn.Module):
         # generate glimpse phi from image x
         phi = self.retina.foveate(x, l_t_prev)
         if self.kernel_size > 0:
-            phi_conv = self.retina.foveate(
-                    F.max_pool2d(self.conv(x), 2), 
-                    l_t_prev)
+            x_conv = F.max_pool2d(self.conv(x), 2)
+            phi_conv = self.retina.foveate(x_conv, l_t_prev)
             phi = torch.cat([phi, phi_conv], dim=1)
 
         # flatten location vector
