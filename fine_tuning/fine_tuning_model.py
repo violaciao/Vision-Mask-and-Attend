@@ -46,8 +46,9 @@ data_transforms = {
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
     'val': transforms.Compose([
-        transforms.Scale(256),
-        transforms.CenterCrop(224),
+        transforms.Scale(224),
+        # transforms.Resize(256),
+        # transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
@@ -75,7 +76,8 @@ data_transforms = {
 
 data_dir = DATA_DIR
 dsets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x])
-         for x in ['train', 'val'] if not x.startswith('.DS_Store')}
+         for x in ['train', 'val'] 
+         if (not x.startswith('.DS_Store')) and (not x.startswith('dummy'))}
 dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size=BATCH_SIZE,
                                                shuffle=True, num_workers=25)
                 for x in ['train', 'val']}
@@ -209,7 +211,7 @@ model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
                        num_epochs=100)
 
 # Save model
-torch.save(model_ft.state_dict(), 'model_ft_fl5.pt')
+torch.save(model_ft.state_dict(), MODEL_SAVING_PATH)
 
 
 
