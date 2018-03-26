@@ -3,6 +3,7 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import os
 
 from config import get_config
@@ -21,8 +22,6 @@ def get_locations_from_model(trainer, img):
 
     Returns:
         - loc: list of (x,y) tuples, locations from raw image
-        - conv_loc: list f (x, y) tuples, locations from conved image, 
-                whose size is half of the raw image
     '''
     img_size = img.shape[-1]
     if trainer.use_gpu:
@@ -39,12 +38,10 @@ def get_locations_from_model(trainer, img):
     h_t, l_t, b_t, log_p, p = trainer.model(img, l_t, h_t, True)
     loc.append(l_t.squeeze().data.cpu().numpy())
 
-    conv_loc = []
     for i in range(len(loc)):
-        conv_loc.append(denormalize(img_size/2, loc[i]))
         loc[i] = denormalize(img_size, loc[i])
 
-    return loc, conv_loc
+    return loc
 
 
 def denormalize_image(data, 
@@ -59,6 +56,8 @@ def denormalize_image(data,
     '''
     for c in range(3):
         data[:,:,:,c] = data[:,:,:,c] * std[c] + mean[c]
+
+    return data
 
 
 def main():
@@ -84,7 +83,7 @@ def main():
             continue
         viz_label.append(y)
 
-        loc, conv_loc = get_locations_from_model(trainer, x)
+        loc = get_locations_from_model(trainer, x)
         x_conv = F.max_pool2d(
                 trainer.model.sensor.conv(Variable(x, volatile=True)), 2)
         x_conv = x_conv.data
@@ -92,36 +91,36 @@ def main():
             x = x.transpose(1,3)
             x_conv = x_conv.transpose(1,3)
 
-        denormalize_image(x.numpy())
-        denormalize_image(x_conv.numpy())
+        x = denormalize_image(x.numpy())
+        x_conv = denormalize_image(x_conv.numpy())
         num_glimpses = len(loc)
 
-        fig, (axs1, axs2) = plt.subplots(nrows=2, ncols=num_glimpses)
+        fig = plt.figure(1, (10, 3))
+        n_row, n_col = 3, 2 * num_glimpses
+        gridspec.GridSpec(n_row, n_col)
 
-        # raw image
-        for j, ax in enumerate(axs1.flat):
+        for j in range(num_glimpses):
+            ax = plt.subplot2grid((n_row, n_col), (0, 2*j), colspan=2, rowspan=2)
             ax.imshow(x[0])
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
 
-        for j, ax in enumerate(axs1.flat):
-            x, y = int(loc[j][0]), int(loc[j][1])
+            x_coord, y_coord = int(loc[j][0]), int(loc[j][1])
             for s in range(trainer.num_patches):
                 size = trainer.patch_size * 2 ** s
-                rect = bounding_box(x, y, size, 'r')
+                rect = bounding_box(x_coord, y_coord, size, 'r')
                 ax.add_patch(rect)
 
-        # conved image
-        for j, ax in enumerate(axs2.flat):
+        for j in range(num_glimpses):
+            ax = plt.subplot2grid((n_row, n_col), (2, 2*j))
             ax.imshow(x_conv[0])
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
 
-        for j, ax in enumerate(axs2.flat):
-            x, y = int(conv_loc[j][0]), int(conv_loc[j][1])
+            x_coord, y_coord = int(loc[j][0]) / 2, int(loc[j][1]) / 2
             for s in range(trainer.num_patches):
-                size = trainer.patch_size * 2 ** s
-                rect = bounding_box(x, y, size, 'r')
+                size = trainer.patch_size * 2 ** s / 2
+                rect = bounding_box(x_coord, y_coord, size, 'r')
                 ax.add_patch(rect)
 
         fig.tight_layout()
