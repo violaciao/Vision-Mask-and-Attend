@@ -32,10 +32,15 @@ class retina(object):
     - phi: a 5D tensor of shape (B, k, g, g, C). The
       foveated glimpse of the image.
     """
-    def __init__(self, g, k, s):
+    def __init__(self, g, k, s, c, kernel_size):
         self.g = g
         self.k = k
         self.s = s
+        self.kernel_size = kernel_size
+
+        if kernel_size > 0:
+            self.conv = nn.Conv2d(c*k, c*k, kernel_size, 
+                    padding=kernel_size//2)
 
     def foveate(self, x, l):
         """
@@ -63,6 +68,8 @@ class retina(object):
 
         # concatenate into a single tensor and flatten
         phi = torch.cat(phi, 1)
+        if self.kernel_size > 0:
+            phi = F.max_pool2d(self.conv(phi), 2)
         phi = phi.view(phi.shape[0], -1)
 
         return phi
@@ -81,7 +88,7 @@ class retina(object):
 
         Returns
         -------
-        - patch: a 4D Tensor of shape (B, size, size, C)
+        - patch: a 4D Tensor of shape (B, C, size, size)
         """
         B, C, H, W = x.shape
         T = min(H, W)
@@ -183,6 +190,7 @@ class glimpse_network(nn.Module):
       of images.
     - l_t_prev: a 2D tensor of shape (B, 2). Contains the glimpse
       coordinates [x, y] for the previous timestep `t-1`.
+    - kernel_size: list of int, convolutional kernel size in stacked RAM
 
     Returns
     -------
@@ -190,12 +198,20 @@ class glimpse_network(nn.Module):
       representation returned by the glimpse network for the
       current timestep `t`.
     """
-    def __init__(self, h_g, h_l, g, k, s, c):
+    def __init__(self, h_g, h_l, g, k, s, c, kernel_size):
         super(glimpse_network, self).__init__()
-        self.retina = retina(g, k, s)
+        self.retina = retina(g, k, s, c, kernel_size[1])
 
         # glimpse layer
         D_in = k*g*g*c
+        self.kernel_size = kernel_size[0]
+        if self.kernel_size > 0:
+            D_in *= 2
+            self.conv = nn.Conv2d(c, c, 
+                    self.kernel_size, padding=self.kernel_size//2)
+        if kernel_size[1] > 0:
+            D_in = D_in // 4
+
         self.fc1 = nn.Linear(D_in, h_g)
 
         # location layer
@@ -208,6 +224,10 @@ class glimpse_network(nn.Module):
     def forward(self, x, l_t_prev):
         # generate glimpse phi from image x
         phi = self.retina.foveate(x, l_t_prev)
+        if self.kernel_size > 0:
+            x_conv = F.max_pool2d(self.conv(x), 2)
+            phi_conv = self.retina.foveate(x_conv, l_t_prev)
+            phi = torch.cat([phi, phi_conv], dim=1)
 
         # flatten location vector
         l_t_prev = l_t_prev.view(l_t_prev.size(0), -1)

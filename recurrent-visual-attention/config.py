@@ -26,6 +26,10 @@ glimpse_arg.add_argument('--loc_hidden', type=int, default=128,
                          help='hidden size of loc fc')
 glimpse_arg.add_argument('--glimpse_hidden', type=int, default=128,
                          help='hidden size of glimpse fc')
+glimpse_arg.add_argument('--kernel_size', nargs=2, type=int, default=[0,0],
+                         help='kernel sizes in stacked RAM, \
+                                 first 0 means no stacks, second means \
+                                 no conv when glimpse')
 
 
 # core network params
@@ -46,6 +50,8 @@ reinforce_arg.add_argument('--M', type=int, default=10,
 
 # data params
 data_arg = add_argument_group('Data Params')
+data_arg.add_argument('--num_classes', type=int, 
+                      help='# of labels')
 data_arg.add_argument('--valid_size', type=float, default=0.1,
                       help='Proportion of training set used for validation')
 data_arg.add_argument('--batch_size', type=int, default=32,

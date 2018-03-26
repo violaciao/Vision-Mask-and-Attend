@@ -3,7 +3,7 @@ import torch
 from trainer import Trainer
 from config import get_config
 from utils import prepare_dirs, save_config
-from dataset import get_test_loader, get_train_valid_loader
+from dataset2 import get_test_loader, get_train_valid_loader
 
 
 def main(config):

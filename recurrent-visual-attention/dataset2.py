@@ -3,49 +3,26 @@ from utils import plot_images
 
 import torch
 from torch.utils.data import Dataset, DataLoader
+from torchvision import datasets, transforms
+
+import os
 
 
-class FlowerDataset(Dataset):
-
-    def __init__(self, data):
-        self.data = [d[0] for d in data]
-        self.label = [d[1] for d in data]
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, i):
-        return torch.FloatTensor(self.data[i]), torch.LongTensor([self.label[i]])
-        
-
-def load_data(data_dir, valid_size, random_seed):
-    import glob, os, random, scipy.misc
-
-    files = glob.glob(os.path.join(data_dir, '*.jpg'))
-    files.sort()
-
-    num_labels = 17
-    num_per_label = 80
-    split = int(num_per_label*valid_size)
-    train_data = []
-    valid_data = []
-    random.seed(random_seed)
-
-    for i in range(num_labels):
-        idx = list(range(num_per_label))
-        random.shuffle(idx)
-
-        for j in idx[split:]:
-            img = scipy.misc.imread(files[i*num_per_label+j]) / 255.0
-            img = np.transpose(img, [0,2,3,1])
-            train_data.append([img, i])
-
-        for j in idx[:split]:
-            img = scipy.misc.imread(files[i*num_per_label+j]) / 255.0
-            img = np.transpose(img, [0,2,3,1])
-            valid_data.append([img, i])
-
-    return train_data, valid_data
+data_transforms = {
+        'train': transforms.Compose([
+            transforms.RandomResizedCrop(400),
+            transforms.Resize(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ]),
+        'val': transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ]),
+        }
 
 
 def get_train_valid_loader(data_dir,
@@ -85,14 +62,18 @@ def get_train_valid_loader(data_dir,
     error_msg = "[!] valid_size should be in the range [0, 1]."
     assert ((valid_size >= 0) and (valid_size <= 1)), error_msg
 
-    train_data, valid_data = load_data(data_dir, valid_size, random_seed)
-    train_dataset = FlowerDataset(train_data)
-    valid_dataset = FlowerDataset(valid_data)
+    train_dataset = datasets.ImageFolder(
+            os.path.join(data_dir, 'train'), 
+            data_transforms['train'])
 
     train_loader = DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True,
         num_workers=num_workers, pin_memory=pin_memory,
     )
+
+    valid_dataset = datasets.ImageFolder(
+            os.path.join(data_dir, 'val'), 
+            data_transforms['val'])
 
     valid_loader = DataLoader(
         valid_dataset, batch_size=batch_size, shuffle=False,
@@ -136,8 +117,10 @@ def get_test_loader(data_dir,
     -------
     - data_loader: test set iterator.
     """
-    data, _ = load_data(data_dir, 0, 0)
-    dataset = FlowerDataset(data)
+    name = 'test' if os.path.exists('test') else 'val'
+    dataset = datasets.ImageFolder(
+            os.path.join(data_dir, name), 
+            data_transforms['val'])
 
     data_loader = DataLoader(
         dataset, batch_size=batch_size, shuffle=False,
@@ -149,17 +132,34 @@ def get_test_loader(data_dir,
 
 if __name__ == '__main__':
     import sys, glob, os
-    from PIL import Image
+    import random
 
     from_dir = sys.argv[1]
     to_dir = sys.argv[2]
-    size = int(sys.argv[3])
+    valid_ratio = float(sys.argv[3]) if len(sys.argv) > 3 else 0.2
+
+    num_label = 17
     if not os.path.exists(to_dir):
-        os.system('mkdir -p %s' % to_dir)
+        for i in range(num_label):
+            os.system('mkdir -p %s' % os.path.join(to_dir, 'train', str(i)))
+            os.system('mkdir -p %s' % os.path.join(to_dir, 'val', str(i)))
 
     files = glob.glob(os.path.join(from_dir, '*.jpg'))
-    for f in files:
-        name = f.split('/')[-1]
-        img = Image.open(f)
-        img = img.resize((size, size), Image.ANTIALIAS)
-        img.save(os.path.join(to_dir, name))
+    files = sorted(files)
+    num_instance_per_label = 80
+    n_valid = 0
+    for i in range(len(files)):
+        cls, n = str(i // num_instance_per_label), i % num_instance_per_label
+        if n == 0:
+            n_valid = 0
+
+        name = files[i].split('/')[-1]
+        if random.random() < valid_ratio and \
+                n_valid < valid_ratio * num_instance_per_label:
+            n_valid += 1
+            os.system('cp %s %s' % (files[i], os.path.join(to_dir, 'val', cls, name)))
+        elif n - n_valid < (1 - valid_ratio) * num_instance_per_label:
+            os.system('cp %s %s' % (files[i], os.path.join(to_dir, 'train', cls, name)))
+        else:
+            n_valid += 1
+            os.system('cp %s %s' % (files[i], os.path.join(to_dir, 'val', cls, name)))
