@@ -71,7 +71,7 @@ class RecurrentAttention(nn.Module):
 
         Args
         ----
-        - x: a 4D Tensor of shape (B, H, W, C). The minibatch
+        - x: a 4D Tensor of shape (B, C, H, W). The minibatch
           of images.
         - l_t_prev: a 2D tensor of shape (B, 2). The location vector
           containing the glimpse coordinates [x, y] for the previous

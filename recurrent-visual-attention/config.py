@@ -50,6 +50,8 @@ reinforce_arg.add_argument('--M', type=int, default=10,
 
 # data params
 data_arg = add_argument_group('Data Params')
+data_arg.add_argument('--num_classes', type=int, 
+                      help='# of labels')
 data_arg.add_argument('--valid_size', type=float, default=0.1,
                       help='Proportion of training set used for validation')
 data_arg.add_argument('--batch_size', type=int, default=32,
