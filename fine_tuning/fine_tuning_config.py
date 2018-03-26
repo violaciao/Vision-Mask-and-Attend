@@ -5,7 +5,7 @@ DECAY_WEIGHT = 0.1 # factor by which the learning rate is reduced.
 
 
 # DATASET INFO
-NUM_CLASSES = 3 # set the number of classes in dataset
+NUM_CLASSES = 2 # set the number of classes in dataset
 DATA_DIR = '/Users/Viola/CDS/Rearch/Langone/Vision-Mask-and-Attend/data'
 
 # DATALOADER PROPERTIES
@@ -18,6 +18,6 @@ GPU_MODE = 0 # set to 1 if run on gpu.
 
 
 # SETTINGS FOR DISPLAYING ON TENSORBOARD
-USE_TENSORBOARD = 0 #if you want to use tensorboard set this to 1.
-TENSORBOARD_SERVER = "YOUR TENSORBOARD SERVER ADDRESS HERE" 
-EXP_NAME = "fine_tuning_experiment" # if using tensorboard, enter name of experiment want to be displayed as.
+USE_TENSORBOARD = 1 # if want to use tensorboard set this to 1.
+TENSORBOARD_LOGDIR = "ft_log" # directory of tensorboard log files
+FLUSH_SECS = 30 # flush interval - number of seconds
