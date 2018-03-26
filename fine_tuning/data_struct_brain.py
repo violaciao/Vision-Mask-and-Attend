@@ -20,7 +20,7 @@ def j(a, b):
 
 def construct_dataset(set_folders=True):
 
-	DATA_PATH = ".../data/data_brain"
+	DATA_PATH = ".../data/data_brain_no2"
 	PICKLE_PATH = ".../data/data_brain/pickle_files"
 
 	indicators = get_indicators(PICKLE_PATH)
@@ -36,9 +36,9 @@ def construct_dataset(set_folders=True):
 	            sub_path = os.path.join(indicator_path, sub)
 	            os.makedirs(sub_path)
 
-	            for cat in [0, 1, 2]:
+	            for cat in [0, 1]:
 	                cat_path = os.path.join(sub_path, str(cat))
-	                os.makedirs(cat_path)	
+	                os.makedirs(cat_path)
 
 
 	for indicator in indicators:
@@ -77,12 +77,14 @@ def construct_dataset(set_folders=True):
 	            elif sub == 'testing':
 	                sub = 'test'
 	                
-	            cat = str(i_label.argmax())
-	            
-	            dst_path = j( j( j(DATA_PATH, indicator), sub), cat)
-	            dst_dir = j(dst_path, ID[i]+'_'+str(i).zfill(4)+'.png')
-	            
-	            scipy.misc.imsave(dst_dir, data[i].reshape((256, 256)))
+	            cat = i_label.argmax()
+
+	            if cat != 2:
+
+		            dst_path = j( j( j(DATA_PATH, indicator), sub), str(cat))
+		            dst_dir = j(dst_path, ID[i]+'_'+str(i).zfill(4)+'.png')
+		            
+		            scipy.misc.imsave(dst_dir, data[i].reshape((256, 256)))
 
 
 if __name__ == '__main__':
