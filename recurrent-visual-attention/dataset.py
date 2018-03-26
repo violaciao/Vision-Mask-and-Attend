@@ -37,10 +37,12 @@ def load_data(data_dir, valid_size, random_seed):
 
         for j in idx[split:]:
             img = scipy.misc.imread(files[i*num_per_label+j]) / 255.0
+            img = np.transpose(img, [0,2,3,1])
             train_data.append([img, i])
 
         for j in idx[:split]:
             img = scipy.misc.imread(files[i*num_per_label+j]) / 255.0
+            img = np.transpose(img, [0,2,3,1])
             valid_data.append([img, i])
 
     return train_data, valid_data

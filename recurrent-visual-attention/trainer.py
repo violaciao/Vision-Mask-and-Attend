@@ -63,7 +63,7 @@ class Trainer(object):
             self.test_loader = data_loader
             self.num_test = len(self.test_loader.dataset)
             self.num_channels = self.test_loader.dataset[0][0].shape[0]
-        self.num_classes = 17
+        self.num_classes = config.num_classes
 
         # training params
         self.epochs = config.epochs

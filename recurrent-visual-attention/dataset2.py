@@ -131,17 +131,34 @@ def get_test_loader(data_dir,
 
 if __name__ == '__main__':
     import sys, glob, os
-    from PIL import Image
+    import random
 
     from_dir = sys.argv[1]
     to_dir = sys.argv[2]
-    size = int(sys.argv[3])
+    valid_ratio = float(sys.argv[3]) if len(sys.argv) > 3 else 0.2
+
+    num_label = 17
     if not os.path.exists(to_dir):
-        os.system('mkdir -p %s' % to_dir)
+        for i in range(num_label):
+            os.system('mkdir -p %s' % os.path.join(to_dir, 'train', str(i)))
+            os.system('mkdir -p %s' % os.path.join(to_dir, 'val', str(i)))
 
     files = glob.glob(os.path.join(from_dir, '*.jpg'))
-    for f in files:
-        name = f.split('/')[-1]
-        img = Image.open(f)
-        img = img.resize((size, size), Image.ANTIALIAS)
-        img.save(os.path.join(to_dir, name))
+    files = sorted(files)
+    num_instance_per_label = 80
+    n_valid = 0
+    for i in range(len(files)):
+        cls, n = str(i // num_instance_per_label), i % num_instance_per_label
+        if n == 0:
+            n_valid = 0
+
+        name = files[i].split('/')[-1]
+        if random.random() < valid_ratio and \
+                n_valid < valid_ratio * num_instance_per_label:
+            n_valid += 1
+            os.system('cp %s %s' % (files[i], os.path.join(to_dir, 'val', cls, name)))
+        elif n - n_valid < (1 - valid_ratio) * num_instance_per_label:
+            os.system('cp %s %s' % (files[i], os.path.join(to_dir, 'train', cls, name)))
+        else:
+            n_valid += 1
+            os.system('cp %s %s' % (files[i], os.path.join(to_dir, 'val', cls, name)))
