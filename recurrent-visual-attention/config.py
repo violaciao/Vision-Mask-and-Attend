@@ -30,6 +30,16 @@ glimpse_arg.add_argument('--kernel_size', nargs=2, type=int, default=[0,0],
                          help='kernel sizes in stacked RAM, \
                                  first 0 means no stacks, second means \
                                  no conv when glimpse')
+glimpse_arg.add_argument('--num_stacks', type=int, default=3,
+                         help='# of stacks in stacked RAM without conv')
+glimpse_arg.add_argument('--stack_attn_mode', type=str, default='separate', 
+                         choices=['separate', 'concat', 'combine'], 
+                         help='Mode of next location selection in stacked RAM. \
+                                 - separate: each RAM is independent. \
+                                 - concat: concatenate stacked RAMs and the \
+                                         location selected is shared. \
+                                 - combine: concatenate stacked RAMs, but predict \
+                                         @num_stacks locations')
 
 
 # core network params

@@ -43,6 +43,8 @@ class Trainer(object):
         self.loc_hidden = config.loc_hidden
         self.glimpse_hidden = config.glimpse_hidden
         self.kernel_size = config.kernel_size
+        self.num_stacks = config.num_stacks
+        self.stack_attn_mode = config.stack_attn_mode
 
         # core network params
         self.num_glimpses = config.num_glimpses
@@ -87,11 +89,11 @@ class Trainer(object):
         self.resume = config.resume
         self.print_freq = config.print_freq
         self.plot_freq = config.plot_freq
-        self.model_name = 'ram_{}_{}_{}_{}_{}'.format(
+        self.model_name = 'ram_{}_{}_{}_{}_{}_{}_{}'.format(
             config.num_glimpses, config.num_patches,
             config.patch_size, config.glimpse_scale, 
-            '-'.join(str(x) for x in config.kernel_size)
-        )
+            '-'.join(str(x) for x in config.kernel_size), 
+            config.num_stacks, config.stack_attn_mode)
 
         self.plot_dir = './plots/' + self.model_name + '/'
         if not os.path.exists(self.plot_dir):
@@ -109,7 +111,8 @@ class Trainer(object):
         self.model = RecurrentAttention(
             self.patch_size, self.num_patches, self.glimpse_scale,
             self.num_channels, self.glimpse_hidden, self.loc_hidden,
-            self.std, self.hidden_size, self.num_classes, self.kernel_size
+            self.std, self.hidden_size, self.num_classes, 
+            self.kernel_size, self.num_stacks, self.stack_attn_mode
         )
         if self.use_gpu:
             self.model.cuda()
@@ -134,9 +137,11 @@ class Trainer(object):
         """
         h_t = torch.zeros(self.batch_size, self.hidden_size)
         h_t = Variable(h_t)
+        h_t = [h_t] * self.num_stacks
 
         l_t = torch.Tensor(self.batch_size, 2).normal_(0, 0.1)
         l_t = Variable(l_t)
+        l_t = [l_t] * self.num_stacks
 
         return h_t, l_t
 
@@ -219,8 +224,8 @@ class Trainer(object):
             x, y = Variable(x), Variable(y)
 
             plot = False
-            if (epoch % self.plot_freq == 0) and (i == 0):
-                plot = True
+            #if (epoch % self.plot_freq == 0) and (i == 0):
+            #    plot = True
 
             # initialize location vector and hidden state
             self.batch_size = x.shape[0]
@@ -253,13 +258,13 @@ class Trainer(object):
             locs.append(l_t[0:9])
 
             # convert list to tensors and reshape
-            baselines = torch.stack(baselines).transpose(1, 0)
-            log_pi = torch.stack(log_pi).transpose(1, 0)
+            baselines = torch.stack(baselines).transpose(0, 2)
+            log_pi = torch.stack(log_pi).transpose(0, 2)
 
             # calculate reward
             predicted = torch.max(log_probas, 1)[1]
             R = (predicted.detach() == y).float()
-            R = R.unsqueeze(1).repeat(1, self.num_glimpses)
+            R = R.view(R.size(0), 1, 1).repeat(1, self.num_stacks, self.num_glimpses)
 
             # compute losses for differentiable modules
             loss_action = F.nll_loss(log_probas, y)
@@ -368,8 +373,8 @@ class Trainer(object):
             baselines.append(b_t)
 
             # convert list to tensors and reshape
-            baselines = torch.stack(baselines).transpose(1, 0)
-            log_pi = torch.stack(log_pi).transpose(1, 0)
+            baselines = torch.stack(baselines).transpose(0, 2)
+            log_pi = torch.stack(log_pi).transpose(0, 2)
 
             # average
             log_probas = log_probas.view(
@@ -378,19 +383,19 @@ class Trainer(object):
             log_probas = torch.mean(log_probas, dim=0)
 
             baselines = baselines.contiguous().view(
-                self.M, -1, baselines.shape[-1]
+                self.M, -1, self.num_stacks, baselines.shape[-1]
             )
             baselines = torch.mean(baselines, dim=0)
 
             log_pi = log_pi.contiguous().view(
-                self.M, -1, log_pi.shape[-1]
+                self.M, -1, self.num_stacks, log_pi.shape[-1]
             )
             log_pi = torch.mean(log_pi, dim=0)
 
             # calculate reward
             predicted = torch.max(log_probas, 1)[1]
             R = (predicted.detach() == y).float()
-            R = R.unsqueeze(1).repeat(1, self.num_glimpses)
+            R = R.view(R.size(0), 1, 1).repeat(1, self.num_stacks, self.num_glimpses)
 
             # compute losses for differentiable modules
             loss_action = F.nll_loss(log_probas, y)

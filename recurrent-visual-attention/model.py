@@ -2,6 +2,7 @@ import math
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from torch.distributions import Normal
 
@@ -34,7 +35,9 @@ class RecurrentAttention(nn.Module):
                  std,
                  hidden_size,
                  num_classes, 
-                 kernel_size):
+                 kernel_size, 
+                 num_stacks, 
+                 stack_attn_mode):
         """
         Initialize the recurrent attention model and its
         different components.
@@ -54,15 +57,38 @@ class RecurrentAttention(nn.Module):
         - num_glimpses: number of glimpses to take per image,
           i.e. number of BPTT steps.
         - kernel_size: list of int, convolutional kernel size in stacked RAM
+        - num_stacks: int, number of layers in stacked RAM
+        - stack_attn_mode: str, values chosen from 'separate', 'concat', 'combine'
         """
         super(RecurrentAttention, self).__init__()
         self.std = std
+        self.num_stacks = num_stacks
+        self.stack_attn_mode = stack_attn_mode
 
-        self.sensor = glimpse_network(h_g, h_l, g, k, s, c, kernel_size)
-        self.rnn = core_network(h_g + h_l, hidden_size)
-        self.locator = location_network(hidden_size, 2, std)
-        self.classifier = action_network(hidden_size, num_classes)
-        self.baseliner = baseline_network(hidden_size, 1)
+        self.sensor = nn.ModuleList([
+                glimpse_network(h_g, h_l, g, k, s, c, kernel_size)
+                for _ in range(num_stacks)
+                ])
+        self.rnn = nn.ModuleList([
+                core_network(h_g + h_l, hidden_size)
+                for _ in range(num_stacks)
+                ])
+        if stack_attn_mode == 'separate':
+            self.locator = nn.ModuleList([
+                location_network(hidden_size, 2, std)
+                for _ in range(num_stacks)
+                ])
+        elif stack_attn_mode == 'concat':
+            self.locator = location_network(hidden_size * num_stacks, 2, std)
+        elif stack_attn_mode == 'combine':
+            self.locator = location_network(hidden_size * num_stacks, 2 * num_stacks, std)
+        else:
+            raise 'Unknown stack_attn_mode [%s]' % stack_attn_mode
+
+        self.baseliner = nn.ModuleList([
+            baseline_network(hidden_size, 1) for _ in range(num_stacks)
+            ])
+        self.classifier = action_network(hidden_size * num_stacks, num_classes)
 
     def forward(self, x, l_t_prev, h_t_prev, last=False):
         """
@@ -99,16 +125,39 @@ class RecurrentAttention(nn.Module):
         - log_probas: a 2D tensor of shape (B, num_classes). The
           output log probability vector over the classes.
         """
-        g_t = self.sensor(x, l_t_prev)
-        h_t = self.rnn(g_t, h_t_prev)
-        mu, l_t = self.locator(h_t)
-        b_t = self.baseliner(h_t).squeeze()
+        h_ts = []
+        l_ts = []
+        b_ts = []
+        log_pis = []
+        for i in range(self.num_stacks):
+            img = x
+            if  i > 0:
+                img = F.avg_pool2d(img, 2**i)
 
-        log_pi = Normal(mu, self.std).log_prob(l_t)
-        log_pi = torch.sum(log_pi, dim=1)
+            g_t = self.sensor[i](img, l_t_prev[i])
+            h_t = self.rnn[i](g_t, h_t_prev[i])
+
+            h_ts.append(h_t)
+
+        if self.stack_attn_mode == 'separate':
+            for i in range(self.num_stacks):
+                mu, l_t = self.locator[i](h_ts[i])
+
+                log_pi = Normal(mu, self.std).log_prob(l_t)
+                log_pi = torch.sum(log_pi, dim=1)
+
+                l_ts.append(l_t)
+                log_pis.append(log_pi)
+                b_t = self.baseliner[i](h_ts[i]).squeeze()
+                b_ts.append(b_t)
+
+            log_pis = torch.stack(log_pis)
+            b_ts = torch.stack(b_ts)
+        else:
+            raise NotImplementedError
 
         if last:
-            log_probas = self.classifier(h_t)
-            return h_t, l_t, b_t, log_probas, log_pi
+            log_probas = self.classifier(torch.cat(h_ts, dim=1))
+            return h_ts, l_ts, b_ts, log_probas, log_pis
 
-        return h_t, l_t, b_t, log_pi
+        return h_ts, l_ts, b_ts, log_pis
