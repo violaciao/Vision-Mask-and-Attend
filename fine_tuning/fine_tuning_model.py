@@ -46,9 +46,9 @@ data_transforms = {
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
     'val': transforms.Compose([
-        transforms.Scale(224),
-        # transforms.Resize(256),
-        # transforms.CenterCrop(224),
+        # transforms.Scale(224),
+        transforms.Scale(256),
+        transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
@@ -132,7 +132,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=100):
                 loss = criterion(outputs, labels)
                 # print('loss done')                
                 # Just so that you can keep track that something's happening and don't feel like the program isn't running.
-                if counter%50==0:
+                if counter%100==0:
                     print("Reached iteration ",counter)
                 counter+=1
 
@@ -188,12 +188,38 @@ def exp_lr_scheduler(optimizer, epoch, init_lr=BASE_LR, lr_decay_epoch=EPOCH_DEC
 
 ### SECTION 3 : DEFINING MODEL ARCHITECTURE.
 
-# use Resnet18
-# Set the number of classes in the config file by setting the right value for NUM_CLASSES.
+# Set the pre-trained model in the ocnfig file by MODEL_FT.
+if MODEL_FT == 'inception_v3':
+    model_ft = models.inception_v3(pretrained=True)   
+elif MODEL_FT == 'resnet18':
+    model_ft = models.resnet18(pretrained=True)
+elif MODEL_FT == 'resnet152':
+    model_ft = models.resnet152(pretrained=True)
+elif MODEL_FT == 'vgg16':
+    model_ft = models.vgg16(pretrained=True)
+elif MODEL_FT == 'densenet':
+    model_ft = models.densenet161(pretrained=True)
+elif MODEL_FT == 'alexnet':
+    model_ft = models.alexnet(pretrained=True)
+else:
+    model_ft = None
+    print("Error from FT Config Setting! Invalid Pretrained Model Name Value!")
 
-model_ft = models.resnet18(pretrained=True)
-num_ftrs = model_ft.fc.in_features
-model_ft.fc = nn.Linear(num_ftrs, NUM_CLASSES)
+
+# Set model parameters
+if 'vgg' in MODEL_FT or 'alexnet' in MODEL_FT:
+    num_ftrs = model_ft.classifier[6].in_features
+    features = list(model_ft.classifier.children())[:-1]
+    features.extend([nn.Linear(num_ftrs, NUM_CLASSES)])
+    model_ft.classifier = nn.Sequential(*features)
+
+elif 'densenet' in MODEL_FT:
+    num_ftrs = model_ft.classifier.in_features
+    model_ft.classifier = nn.Linear(num_ftrs, NUM_CLASSES)
+
+else:
+    num_ftrs = model_ft.fc.in_features
+    model_ft.fc = nn.Linear(num_ftrs, NUM_CLASSES)
 
 
 criterion = nn.CrossEntropyLoss()
