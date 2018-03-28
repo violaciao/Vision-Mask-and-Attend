@@ -41,23 +41,48 @@ Note, in this step, you must set ```patch_size```, ```num_patches``` and ```num_
 
 We have tried the subset of the flower dataset, which has 5 classes. Following are the hyperparamters we used for flower dataset. Others are set as default.
 
+* Global convolutional stacked RAM: the best model reaches accuracy 69.4%.
+
 | #patches | #glimpses | patch size | kernel size|
 |:--------:|:---------:|:----------:|:----------:|
 3 | 4 | 40 | 3 0
 
-The best model reaches accuracy 69.4%.
+* Pure RNN stacked RAM: the accuracy reaches 71.33%.
+
+| #patches | #glimpses | patch size | #stacks|
+|:--------:|:---------:|:----------:|:----------:|
+3 | 6 | 10 | 3
 
 ## Visualization
+
+* Global convolutional stacked RAM
 
 We visualize the locations and patches the model attends, the first row represents the raw image while the second one is the image after convolution and pooling layers. Red rectangles are the patches with different sizes and co-centered.
 
 <p align="center">
+<img src="./viz/viz_conv1.jpg" alt="Drawing", width=100%>
+</p>
+
+<p align="center">
+<img src="./viz/viz_conv2.jpg" alt="Drawing", width=100%>
+</p>
+
+<p align="center">
+<img src="./viz/viz_conv3.jpg" alt="Drawing", width=100%>
+</p>
+
+* Pure RNN stacked RAM
+
+Each row represents the image with different resolution, or at different distances. 
+
+<p align="center">
 <img src="./viz/viz_1.jpg" alt="Drawing", width=100%>
 </p>
+
 <p align="center">
 <img src="./viz/viz_2.jpg" alt="Drawing", width=100%>
 </p>
+
 <p align="center">
 <img src="./viz/viz_3.jpg" alt="Drawing", width=100%>
 </p>
-
