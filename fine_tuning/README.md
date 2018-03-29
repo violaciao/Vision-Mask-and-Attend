@@ -37,11 +37,17 @@ We have tried the subset of the flower dataset, which has 5 classes. Following a
 | data | model | batch size | validation accuracy |
 |:--------:|:---------:|:----------:|:----------:|
 flower_5 | ResNet18 | 10 | 90.35%
-flower_5 | ResNet18 | 20 | 91.84%
-brain_T1 | ResNet18 | 10 | 78.91%  
+flower_5 | ResNet18 | 20 | **91.84%**
+brain_T1 | ResNet18 | 10 | 78.4%  
+brain_T1_FL | ResNet18 | 10 | 57.72%  
+brain_T1_GD | ResNet18 | 10 | 81.66% 
+brain_T2 | ResNet18 | 10 | 65.88% 
+brain_T2_FL | ResNet18 | 10 | 65.66% 
+brain_MIX | ResNet18 | 10 | **71.14%**  
+
 
 For flower_5 dataset, the best model reaches accuracy 91.84%. <br />
-For brain CT dataset, the best performance is 78.91%.  
+For brain CT dataset, the best performance is 81.66% on T1_GD modality, and 71.14% for ensemble.
 
 
 
