@@ -5,6 +5,7 @@ data/processed/
 data/raw/
 logs/
 ckpt/
+outs/
 .DS_Store
 *.s
 fine_tuning/*.ipynb
