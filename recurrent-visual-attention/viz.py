@@ -1,6 +1,7 @@
 import torch
 from torch.autograd import Variable
 import torch.nn.functional as F
+import numpy as np
 
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -22,6 +23,7 @@ def get_locations_from_model(trainer, img):
 
     Returns:
         - loc: list of (x,y) tuples, locations from raw image
+            (num_glimpses, num_stacks, 2)
     '''
     img_size = img.shape[-1]
     if trainer.use_gpu:
@@ -29,17 +31,19 @@ def get_locations_from_model(trainer, img):
     img = Variable(img, volatile=True)
 
     h_t, l_t = trainer.reset()
-    loc = [l_t.squeeze().data.cpu().numpy()]
+    loc = [[l.squeeze().data.cpu().numpy() for l in l_t]]
 
     for t in range(trainer.num_glimpses - 1):
         h_t, l_t, b_t, p = trainer.model(img, l_t, h_t)
-        loc.append(l_t.squeeze().data.cpu().numpy())
+        loc.append([l.squeeze().data.cpu().numpy() for l in l_t])
 
     h_t, l_t, b_t, log_p, p = trainer.model(img, l_t, h_t, True)
-    loc.append(l_t.squeeze().data.cpu().numpy())
+    loc.append([l.squeeze().data.cpu().numpy() for l in l_t])
 
     for i in range(len(loc)):
-        loc[i] = denormalize(img_size, loc[i])
+        for j in range(trainer.num_stacks):
+            size = img_size // 2 ** j
+            loc[i][j] = denormalize(size, loc[i][j])
 
     return loc
 
@@ -56,6 +60,7 @@ def denormalize_image(data,
     '''
     for c in range(3):
         data[:,:,:,c] = data[:,:,:,c] * std[c] + mean[c]
+    data = np.clip(data, 0, 1)
 
     return data
 
@@ -84,44 +89,41 @@ def main():
         viz_label.append(y)
 
         loc = get_locations_from_model(trainer, x)
-        x_conv = F.max_pool2d(
-                trainer.model.sensor.conv(Variable(x, volatile=True)), 2)
-        x_conv = x_conv.data
+        imgs = [x]
+        for j in range(1, trainer.num_stacks):
+            imgs.append(F.avg_pool2d(Variable(x), 2**j).data)
+
         if x.size(-1) != trainer.num_channels:
-            x = x.transpose(1,3)
-            x_conv = x_conv.transpose(1,3)
+            for j in range(0, trainer.num_stacks):
+                imgs[j] = imgs[j].transpose(1, 3)
+                imgs[j] = denormalize_image(imgs[j].numpy())
 
-        x = denormalize_image(x.numpy())
-        x_conv = denormalize_image(x_conv.numpy())
         num_glimpses = len(loc)
+        n_row = 2 ** trainer.num_stacks - 1
+        n_col = 2 ** (trainer.num_stacks - 1) * num_glimpses
 
-        fig = plt.figure(1, (10, 3))
-        n_row, n_col = 3, 2 * num_glimpses
+        fig = plt.figure(1, (n_col, n_row))
         gridspec.GridSpec(n_row, n_col)
+        row_start_idx = [0]
+        for j in range(1, trainer.num_stacks):
+            idx = 2 ** (trainer.num_stacks - j) + row_start_idx[j-1]
+            row_start_idx.append(idx)
 
         for j in range(num_glimpses):
-            ax = plt.subplot2grid((n_row, n_col), (0, 2*j), colspan=2, rowspan=2)
-            ax.imshow(x[0])
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
+            for k in range(trainer.num_stacks):
+                r = row_start_idx[k]
+                c = 2 ** (trainer.num_stacks - 1) * j
+                sz = 2 ** (trainer.num_stacks - k - 1)
+                ax = plt.subplot2grid((n_row, n_col), (r, c), colspan=sz, rowspan=sz)
+                ax.imshow(imgs[k][0])
+                ax.get_xaxis().set_visible(False)
+                ax.get_yaxis().set_visible(False)
 
-            x_coord, y_coord = int(loc[j][0]), int(loc[j][1])
-            for s in range(trainer.num_patches):
-                size = trainer.patch_size * 2 ** s
-                rect = bounding_box(x_coord, y_coord, size, 'r')
-                ax.add_patch(rect)
-
-        for j in range(num_glimpses):
-            ax = plt.subplot2grid((n_row, n_col), (2, 2*j))
-            ax.imshow(x_conv[0])
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-
-            x_coord, y_coord = int(loc[j][0]) / 2, int(loc[j][1]) / 2
-            for s in range(trainer.num_patches):
-                size = trainer.patch_size * 2 ** s / 2
-                rect = bounding_box(x_coord, y_coord, size, 'r')
-                ax.add_patch(rect)
+                x_coord, y_coord = int(loc[j][k][0]), int(loc[j][k][1])
+                for s in range(trainer.num_patches):
+                    size = trainer.patch_size * 2 ** s
+                    rect = bounding_box(x_coord, y_coord, size, 'r')
+                    ax.add_patch(rect)
 
         fig.tight_layout()
         plt.savefig(os.path.join(conf.viz_dir, 'viz_%d.jpg' % len(viz_label)), 
