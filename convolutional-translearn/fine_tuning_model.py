@@ -28,7 +28,7 @@ if USE_TENSORBOARD:
 
 ## to use the GPU, set GPU_MODE TO 1 in config file
 
-use_gpu = GPU_MODE
+use_gpu = torch.cuda.is_available()
 if use_gpu:
     torch.cuda.set_device(CUDA_DEVICE)
 
@@ -210,7 +210,7 @@ else:
 if 'vgg' in MODEL_FT or 'alexnet' in MODEL_FT:
     num_ftrs = model_ft.classifier[6].in_features
     features = list(model_ft.classifier.children())[:-1]
-    features.extend([nn.Linear(num_ftrs, NUM_CLASSES)])
+    features.apppend([nn.Linear(num_ftrs, NUM_CLASSES)])
     model_ft.classifier = nn.Sequential(*features)
 
 elif 'densenet' in MODEL_FT:
