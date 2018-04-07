@@ -369,6 +369,8 @@ class location_network(nn.Module):
             scale=self.std, size=mu.shape)
         )
         noise = Variable(noise.float())
+        if mu.is_cuda:
+            noise = noise.cuda()
         l_t = mu + noise
 
         # bound between [-1, 1]

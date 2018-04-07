@@ -16,6 +16,8 @@ from utils import AverageMeter
 from model import RecurrentAttention
 from tensorboard_logger import configure, log_value
 
+import metrics
+
 
 class Trainer(object):
     """
@@ -137,10 +139,14 @@ class Trainer(object):
         """
         h_t = torch.zeros(self.batch_size, self.hidden_size)
         h_t = Variable(h_t)
+        if self.use_gpu:
+            h_t = h_t.cuda()
         h_t = [h_t] * self.num_stacks
 
         l_t = torch.Tensor(self.batch_size, 2).normal_(0, 0.1)
         l_t = Variable(l_t)
+        if self.use_gpu:
+            l_t = l_t.cuda()
         l_t = [l_t] * self.num_stacks
 
         return h_t, l_t
@@ -172,7 +178,7 @@ class Trainer(object):
             train_loss, train_acc = self.train_one_epoch(epoch)
 
             # evaluate on validation set
-            valid_loss, valid_acc = self.validate(epoch)
+            valid_loss, valid_acc, valid_cmat, valid_auc = self.validate(epoch)
 
             self.scheduler.step(valid_loss)
 
@@ -188,6 +194,8 @@ class Trainer(object):
                 msg2 += " [*]"
             msg = msg1 + msg2
             print(msg.format(train_loss, train_acc, valid_loss, valid_acc))
+            print(valid_cmat)
+            print(valid_auc)
 
             # check for improvement
             if not is_best:
@@ -340,6 +348,9 @@ class Trainer(object):
         losses = AverageMeter()
         accs = AverageMeter()
 
+        cmat = metrics.ConfusionMatrix(self.num_classes)
+        auc = metrics.AUC(self.num_classes)
+
         for i, (x, y) in enumerate(self.valid_loader):
             y = y.squeeze()
             if self.use_gpu:
@@ -416,13 +427,16 @@ class Trainer(object):
             losses.update(loss.data[0], x.size()[0])
             accs.update(acc.data[0], x.size()[0])
 
+            cmat.add(predicted, y)
+            auc.add(y, log_probas.exp())
+
             # log to tensorboard
             if self.use_tensorboard:
                 iteration = epoch*len(self.valid_loader) + i
                 log_value('valid_loss', losses.avg, iteration)
                 log_value('valid_acc', accs.avg, iteration)
 
-        return losses.avg, accs.avg
+        return losses.avg, accs.avg, cmat, auc
 
     def test(self):
         """
