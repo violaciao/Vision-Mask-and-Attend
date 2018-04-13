@@ -6,6 +6,7 @@ data/raw/
 logs/
 ckpt/
 outs/
+archive*
 .DS_Store
 *.idea*
 *.s

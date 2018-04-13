@@ -16,7 +16,7 @@ Credits -
 
 1. Download dataset (eg. [flower](http://www.robots.ox.ac.uk/~vgg/data/flowers/17/index.html) ) and process the data with **data_struct_\*.py**;
 2. Run the model with **model.py** `[options]`; <br />
-Alternatively, to train model with Tensorboard, use **\*model_tensorboard.py** `[options]`; <br />
+Alternatively, to train model with Tensorboard, use **model_tensorboard.py** `[options]`; <br />
 3. Visualize Occlusion Experiments with **occlusion.py**.
 
 ## Results
@@ -50,8 +50,8 @@ Produce the heat map and plot with  **occlusion.py** and store the visualization
  `python3 occlusion.py [options]`
  
 ### Visualization Examples on Resnet18
-![daisy](https://github.com/violaciao/Vision-Mask-and-Attend/blob/master/convolutional-translearn/Results/daisy/daisy_1_m.png)
+![daisy](Results/daisy/daisy_1_m.png)
 *daisy - original, size 20 stride 10*
 
-![dandelion](https://github.com/violaciao/Vision-Mask-and-Attend/blob/master/convolutional-translearn/Results/dandelion/dandelion_1_m.png)
+![dandelion](Results/dandelion/dandelion_1_m.png)
 *dandelion - original, size 20 stride 10*
