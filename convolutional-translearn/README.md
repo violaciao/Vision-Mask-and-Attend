@@ -1,9 +1,10 @@
-# Deep Vision Recognition
+# Deep Vision Recognition & Occlusion Visualization
 
-This is a **PyTorch** implementation of [Deep Visual Recognition - Transfer Learning](http://cs231n.github.io/transfer-learning/).   
+This is a **PyTorch** implementation of [Visualizing and Understanding Convolutional Networks](https://arxiv.org/abs/1311.2901)   
+by *Matthew D Zeiler and Rob Fergus*.  
 
 Credits -   
-http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html and https://github.com/pytorch/examples/tree/master/imagenet.
+[Deep Visual Recognition (cs231n)](http://cs231n.github.io/transfer-learning/), [PyTorch.org](http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html) and [PyTorch Git](https://github.com/pytorch/examples/tree/master/imagenet).
 
 ## Requirements
 
@@ -13,27 +14,16 @@ http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html and https:
 
 ## Usage
 
-1. Download dataset (e.g., [flower](http://www.robots.ox.ac.uk/~vgg/data/flowers/17/index.html) )
-
-2. Run the following command to process data  
-```Python
-python data_struct_*.py
-```
-3. Train the model  
-```Python
-python fine_tuning_model.py [options]
-```
-
-4. Tensorboard
-```Python
-python fine_tuning_model_tensorboard.py [options]
-```
+1. Download dataset (eg. [flower](http://www.robots.ox.ac.uk/~vgg/data/flowers/17/index.html) ) and process the data with **data_struct_\*.py**;
+2. Run the model with **model.py** `[options]`; <br />
+Alternatively, to train model with Tensorboard, use **\*model_tensorboard.py** `[options]`; <br />
+3. Visualize Occlusion Experiments with **occlusion.py**.
 
 ## Results
 
-We have tried the subset of the flower dataset, which has 5 classes. Following are the hyperparamters we used for flower dataset. Others are set as default.
+We have tested our model on various of datasets: 1) a 5-classes subset of the flower dataset; 2) brain scan images; 3) pathology dataset. Following are some of the performance results.
 
-| data | model | batch size | validation accuracy |
+| Data | Model | Batch size | Validation Accuracy |
 |:--------:|:---------:|:----------:|:----------:|
 flower_5 | ResNet18 | 10 | 90.35%
 flower_5 | ResNet18 | 20 | **95.92%**
@@ -44,24 +34,22 @@ brain_T2 | ResNet18 | 10 | 65.88%
 brain_T2_FL | ResNet18 | 10 | 65.66% 
 brain_MIX | ResNet18 | 10 | **71.14%**  
 
-
+**NB:**  
 For flower_5 dataset, the best model reaches accuracy 95.92%. <br />
 For brain CT dataset, the best performance is 81.66% on T1_GD modality, and 71.14% for ensemble.
 
----
-
-# Occlusion Experiment
+## Occlusion Experiment
 
 Occlusion experiments for producing the heat maps that show visually the influence of each region on the classification.  
-The original README file is [here](https://github.com/MarkoArsenovic/DeepLearning_PlantDiseases/blob/master/README.md).
+Reference [MarkoArsenovic](https://github.com/MarkoArsenovic/DeepLearning_PlantDiseases).
 
-### Usage:
+### Usage
 
 Produce the heat map and plot with  **occlusion.py** and store the visualizations in ```--output_dir```:
  
  `python3 occlusion.py [options]`
  
- ### Visualization Examples on Resnet18:
+### Visualization Examples on Resnet18
 ![daisy](https://github.com/violaciao/Vision-Mask-and-Attend/blob/master/convolutional-translearn/Results/daisy/daisy_1_m.png)
 *daisy - original, size 20 stride 10*
 
