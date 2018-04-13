@@ -51,14 +51,14 @@ Produce the heat map and plot with  **occlusion.py** and store the visualization
  
 ### Visualization Examples on Resnet18
 
-![roses](Results/roses/roses_3_m.png)
-*roses - original, size 20 stride 10*
+<img src="Results/roses/roses_3_m.png" height="250">  
+*roses - original, size 20 stride 10*  
 
-![sunflowers](Results/sunflowers/sunflowers_1_m.png)
-*sunflowers - original, size 20 stride 10*
+<img src="Results/sunflowers/sunflowers_1_m.png" height="265">  
+*sunflowers - original, size 20 stride 10*  
 
-![daisy](Results/daisy/daisy_1_m.png)
-*daisy - original, size 20 stride 10*
+<img src="Results/daisy/daisy_1_m.png" height="250">  
+*daisy - original, size 20 stride 10*  
 
-![dandelion](Results/dandelion/dandelion_1_m.png)
-*dandelion - original, size 20 stride 10*
+<img src="Results/dandelion/dandelion_1_m.png" height="250">  
+*dandelion - original, size 20 stride 10*  
