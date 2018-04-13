@@ -7,6 +7,7 @@ logs/
 ckpt/
 outs/
 .DS_Store
+*.idea*
 *.s
 fine_tuning/*.ipynb
 
