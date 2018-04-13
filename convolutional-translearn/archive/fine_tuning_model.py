@@ -41,15 +41,15 @@ count=0
 data_transforms = {
     'train': transforms.Compose([
         # transforms.RandomSizedCrop(224),
-        transforms.Scale(224)
+        transforms.Scale(224),
+        transforms.CenterCrop(224),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
     'val': transforms.Compose([
         transforms.Scale(224),
-        # transforms.Scale(256),
-        # transforms.CenterCrop(224),
+        transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
@@ -134,7 +134,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=100):
                 # print('loss done')                
                 # Just so that you can keep track that something's happening and don't feel like the program isn't running.
                 if counter%100==0:
-                    print("Reached iteration ",counter)
+                    print("Reached iteration ", counter)
                 counter+=1
 
                 # backward + optimize only if in training phase
@@ -229,7 +229,7 @@ if use_gpu:
     criterion.cuda()
     model_ft.cuda()
 
-optimizer_ft = optim.RMSprop(model_ft.parameters(), lr=0.0001)
+optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.0001)
 
 
 
