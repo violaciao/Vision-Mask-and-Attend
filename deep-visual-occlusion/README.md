@@ -1,10 +1,10 @@
-# Deep Vision Recognition & Occlusion Visualization
+# Deep Vision Occlusion
 
 This is a **PyTorch** implementation of [Visualizing and Understanding Convolutional Networks](https://arxiv.org/abs/1311.2901)   
 by *Matthew D Zeiler and Rob Fergus*.  
 
 Credits -   
-[Deep Visual Recognition (cs231n)](http://cs231n.github.io/transfer-learning/), [PyTorch.org](http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html) and [PyTorch Git](https://github.com/pytorch/examples/tree/master/imagenet).
+[MarkoArsenovic](https://github.com/MarkoArsenovic/DeepLearning_PlantDiseases), [Deep Visual Recognition (cs231n)](http://cs231n.github.io/transfer-learning/), [PyTorch.org](http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html) and [PyTorch Git](https://github.com/pytorch/examples/tree/master/imagenet).
 
 ## Requirements
 
@@ -36,12 +36,12 @@ brain_MIX | ResNet18 | 10 | **71.14%**
 
 **NB:**  
 For flower_5 dataset, the best model reaches accuracy 95.92%. <br />
-For brain CT dataset, the best performance is 81.66% on T1_GD modality, and 71.14% for ensemble.
+For brain CT dataset, the best performance is 81.66% on T1_GD modality, and 71.14% for ensemble.  
+
 
 ## Occlusion Experiment
 
-Occlusion experiments for producing the heat maps that show visually the influence of each region on the classification.  
-Reference [MarkoArsenovic](https://github.com/MarkoArsenovic/DeepLearning_PlantDiseases).
+Occlusion experiments for producing the heat maps that show visually the influence of each region on the classification.
 
 ### Usage
 
