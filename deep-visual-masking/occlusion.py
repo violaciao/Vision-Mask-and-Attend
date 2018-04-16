@@ -27,11 +27,11 @@ model_names = sorted(name for name in models.__dict__ if name.islower() and not 
 
 parser = argparse.ArgumentParser(description='Image Category Occlusion Experiment')
 parser.add_argument('--data_dir', metavar='DIR', default="../data/data_flower5", help='path to dataset')
-parser.add_argument('--output_dir', metavar='DIR', default="../output_occlusion/", help='path to output dir')
+parser.add_argument('--output_dir', metavar='DIR', default="outs/output_occulsion/", help='path to output dir')
 parser.add_argument('--arch', metavar='N', default="resnet18", help='architecture name, default: alexnet')
-parser.add_argument('--model_path', metavar='N', default="../Models/model_cpu_fl5_bs20_adam.pt", help='path to the trained model')
+parser.add_argument('--model_path', metavar='N', default="archive/Models/model_cpu_fl5_bs20_adam.pt", help='path to the trained model')
 parser.add_argument('--image_path', metavar='N', default="../data/data_flower5/train/tulips/2813658587_337eeef124_n.jpg", help='path to the image')
-parser.add_argument('--category', metavar='N', default="tulips", help='category name')
+parser.add_argument('--image_class', metavar='N', default="tulips", help='category name')
 parser.add_argument('--classes', default=5, type=int, metavar='N', help='number of classes')
 parser.add_argument('--size', default=20, type=int, metavar='N', help='size')
 parser.add_argument('--stride', default=10, type=int, metavar='N', help='stride')
@@ -92,6 +92,14 @@ preprocess = transforms.Compose([
    transforms.CenterCrop(224),
    transforms.ToTensor(),
    normalize
+])
+
+preprocess1 = transforms.Compose([
+   transforms.Scale(256),
+   transforms.CenterCrop(224),
+   #transforms.Scale(342),
+   #transforms.CenterCrop(299),
+   transforms.ToTensor(),
 ])
 
 def load_labels(data_dir,resize=(224,224)):
@@ -180,17 +188,32 @@ if use_gpu:
     print("Transfering models to GPU(s)")
     model= torch.nn.DataParallel(model).cuda()
 
+
+ind=labels.index(args.image_class)
 img=Image.open(args.image_path)
-plt.imshow(img)
-plt.show() 
-img_name = args.output_dir + args.category + "(cropped).png"
+
+#Extract image name without extension
+file_name=os.path.basename(args.image_path)
 
 
 
-ind=labels.index(args.category)
-img_id = args.image_path.split('/')[-1][:-4]
-heatmap=Occlusion_exp(img,args.size,args.stride,model,preprocess,labels,ind)
-plot_name=args.output_dir+args.category+'_'+img_id+" Heatmap ("+str(args.size)+" "+str(args.stride)+").png"
+
+
+if not os.path.exists(args.output_dir):
+    os.makedirs(args.output_dir)
+
+# ----------------------------------->
+cropped_img = preprocess1(img)
+plt.imshow(np.transpose(cropped_img.numpy(), (1, 2, 0)))
+plt.savefig(args.output_dir+args.image_class+'_'+file_name+"(cropped).png")
+# plt.show() 
+img_name = args.output_dir + args.image_class + "(cropped).png"
+img.save(args.output_dir+args.image_class+'_'+file_name+"(original).png")
+#------------------------------------>
+
+heatmap = Occlusion_exp(img, args.size, args.stride, model, preprocess, labels, ind)
+
+plot_name = args.output_dir+args.image_class+'_'+file_name+" Heatmap ("+str(args.size)+" "+str(args.stride)+").png"
 ax = sns.heatmap(heatmap,cmap="YlGnBu",xticklabels=False, yticklabels=False)
 plt.savefig(plot_name)
 # plt.show() 
