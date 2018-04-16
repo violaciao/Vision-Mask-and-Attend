@@ -27,7 +27,7 @@ model_names = sorted(name for name in models.__dict__ if name.islower() and not 
 
 parser = argparse.ArgumentParser(description='Image Category Occlusion Experiment')
 parser.add_argument('--data_dir', metavar='DIR', default="../data/data_flower5", help='path to dataset')
-parser.add_argument('--output_dir', metavar='DIR', default="../Results/", help='path to output dir')
+parser.add_argument('--output_dir', metavar='DIR', default="../output_occlusion/", help='path to output dir')
 parser.add_argument('--arch', metavar='N', default="resnet18", help='architecture name, default: alexnet')
 parser.add_argument('--model_path', metavar='N', default="../Models/model_cpu_fl5_bs20_adam.pt", help='path to the trained model')
 parser.add_argument('--image_path', metavar='N', default="../data/data_flower5/train/tulips/2813658587_337eeef124_n.jpg", help='path to the image')
