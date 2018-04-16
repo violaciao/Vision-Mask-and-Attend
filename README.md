@@ -7,6 +7,6 @@ We explore Visual Recognition Process through two perspectives: **Masking** and 
 
 ![Architecture](recurrent-visual-attention/plots/Stacked_RAM.png)
 
-## Visual Occlusion - [Implementation](deep-visual-occlusion)
+## Visual Masking - [Implementation](deep-visual-masking)
 
 ![Visualization](deep-visual-masking/plots/mask_plot_daisy.png)
