@@ -5,22 +5,22 @@ DECAY_WEIGHT = 0.1 # factor by which the learning rate is reduced.
 
 
 # DATASET INFO
-NUM_CLASSES = 5 # set the number of classes in dataset
-DATA_DIR = '/Users/Viola/CDS/Rearch/Langone/Vision-Mask-and-Attend/data/data_flower5'
-# DATA_DIR = '/scratch/xc965/DL/TransLearn/data/data_flower5'
+NUM_CLASSES = 3 # set the number of classes in dataset
+# DATA_DIR = '/Users/Viola/CDS/Rearch/Langone/Vision-Mask-and-Attend/data/data_flower5'
+DATA_DIR = '/scratch/xc965/DL/TransLearn/data/data_pathology'
 
 # DATALOADER PROPERTIES
 BATCH_SIZE = 10 # Set as high as possible if there are not out of memory error.
 
 # NUMBER OF TRAINING EPOCHS	
-NUM_EPOCHS = 1
+NUM_EPOCHS = 50
 
 # MODEL FOR TRANSLEARNING
-MODEL_FT = 'resnet18'
+MODEL_FT = 'resnet152'
 
 # MODEL SAVING PATH
-MODEL_SAVING_PATH = 'saved_models/model_pth_resnet18.pt'
-MODEL_CPU_SAVING_PATH = 'saved_models/model_cpu_pth_resnet18.pt'
+MODEL_SAVING_PATH = 'saved_models/model_pth_resnet152.pt'
+MODEL_CPU_SAVING_PATH = 'saved_models/model_cpu_pth_resnet152.pt'
 
 ### GPU SETTINGS
 CUDA_DEVICE = 0 # Enter device ID of the gpu if to run on gpu. Otherwise neglect.

@@ -166,6 +166,11 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=100):
                     best_acc = epoch_acc
                     best_model = copy.deepcopy(model)
                     print('new best accuracy = ',best_acc)
+                    # Save the best model in CPU
+                    torch.save(model.cpu().state_dict(), MODEL_CPU_SAVING_PATH)
+                    print('*** best model saved ***')
+
+
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(
         time_elapsed // 60, time_elapsed % 60))
@@ -229,7 +234,7 @@ if use_gpu:
     criterion.cuda()
     model_ft.cuda()
 
-optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.0001)
+optimizer_ft = optim.Adam(model_ft.parameters())
 
 
 
@@ -238,7 +243,7 @@ model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
                        num_epochs=NUM_EPOCHS)
 
 # Save model in CPU
-torch.save(model_ft.cpu().state_dict(), MODEL_CPU_SAVING_PATH)
+# torch.save(model_ft.cpu().state_dict(), MODEL_CPU_SAVING_PATH)
 
 
 
