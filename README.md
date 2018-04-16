@@ -9,4 +9,4 @@ We explore Visual Recognition Process through two perspectives: **Masking** and 
 
 ## Visual Occlusion - [Implementation](deep-visual-occlusion)
 
-![Visualization](deep-visual-occlusion/Results/daisy/daisy_1_m.png)
+![Visualization](deep-visual-masking/plots/mask_plot_daisy.png)

@@ -1,4 +1,4 @@
-# Deep Vision Mask
+# Deep Vision Masking
 
 This is a **PyTorch** experiment on Deep Visual Recognition Masking with two methods:   
     1) ***Visual Occlusion***, implemented based on [Visualizing and Understanding Convolutional Networks](https://arxiv.org/abs/1311.2901) by *Matthew D Zeiler and Rob Fergus*;   
