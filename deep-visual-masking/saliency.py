@@ -21,7 +21,7 @@ from os import listdir
 from os.path import isfile, join
 from torchvision import datasets
 import seaborn as sns
-sns.set(style="white")
+sns.set(style="whitegrid")
 
 
 parser = argparse.ArgumentParser(description='Image Recognition Sailency Map Visualization')
@@ -30,7 +30,7 @@ parser.add_argument('--data_dir', metavar='DIR', help='path to output dir')
 parser.add_argument('--image_path',metavar='N', help='path to the image')
 parser.add_argument('--image_class', metavar='N', help='category name')
 parser.add_argument('--output_dir', metavar='DIR', help='path to output dir', default="output_saliency/")
-parser.add_argument('--classes', default=5, type=int, metavar='N', help='number of classes')
+parser.add_argument('--classes', default=3, type=int, metavar='N', help='number of classes')
 parser.add_argument('--arch',metavar='N',  default="resnet18", help='architecture name, default: resnet18')
 
 args = parser.parse_args()
@@ -168,7 +168,7 @@ def classifyOneImage(model,img_pil,preprocess):
     
 
 
-#method == util.GradType.NAIVE or util.GradType.GUIDED
+# method = util.GradType.NAIVE # or util.GradType.GUIDED
 method=util.GradType.GUIDED
 
 

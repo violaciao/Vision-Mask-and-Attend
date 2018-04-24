@@ -166,9 +166,8 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=100):
                     best_acc = epoch_acc
                     best_model = copy.deepcopy(model)
                     print('new best accuracy = ',best_acc)
-                    # Save the best model in CPU
-                    torch.save(model.cpu().state_dict(), MODEL_CPU_SAVING_PATH)
-                    print('*** best model saved ***')
+                    torch.save(best_model.cpu().state_dict(), MODEL_CPU_SAVING_PATH)
+                    print('Best model saved!!!')
 
 
     time_elapsed = time.time() - since
@@ -176,7 +175,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=100):
         time_elapsed // 60, time_elapsed % 60))
     print('Best val Acc: {:4f}'.format(best_acc))
     print('returning and looping back')
-    return best_model
+    # return best_model
 
 # This function changes the learning rate over the training model.
 def exp_lr_scheduler(optimizer, epoch, init_lr=BASE_LR, lr_decay_epoch=EPOCH_DECAY):
@@ -239,9 +238,10 @@ optimizer_ft = optim.Adam(model_ft.parameters())
 
 
 # Run the functions and save the best model in the function model_ft.
-model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
+# model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
+                       # num_epochs=NUM_EPOCHS)
+train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
                        num_epochs=NUM_EPOCHS)
-
 # Save model in CPU
 # torch.save(model_ft.cpu().state_dict(), MODEL_CPU_SAVING_PATH)
 
