@@ -21,7 +21,7 @@ from os import listdir
 from os.path import isfile, join
 from torchvision import datasets
 import seaborn as sns
-sns.set(style="whitegrid")
+sns.set(style="darkgrid")
 
 
 parser = argparse.ArgumentParser(description='Image Recognition Sailency Map Visualization')
@@ -112,7 +112,7 @@ def load_labels(data_dir,resize=(224,224)):
     return (dsets['train'].classes)
 
 labels=load_labels(args.data_dir)
-print("Classes of plant diseases classification :")
+print("Classes of image classification :")
 print ("-------------------------------")
 for label in labels:
     print (label)
