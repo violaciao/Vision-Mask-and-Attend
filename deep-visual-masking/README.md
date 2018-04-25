@@ -9,15 +9,12 @@ This is a **PyTorch** experiment on Deep Visual Recognition Masking with two met
 - pytorch 0.3+
 - tensorboard_logger
 
-## TODO
-- Attention mechanism
-
 ## Usage
 1. Download dataset (eg. [flower](http://www.robots.ox.ac.uk/~vgg/data/flowers/17/index.html) ) and process the data with **data_struct_\*.py**;
 2. Run the model with **model.py** `[options]`; <br />
 Alternatively, to train model with Tensorboard, use **model_tensorboard.py** `[options]`; <br />
 3. Visualize Occlusion Experiments with **occlusion.py** `[options]`; <br />
-4. Visualize Saliency Experiment with **saliency.py** `[options]`.
+4. Visualize Saliency Experiment with **saliency\*.py** `[options]`.
 
 ## Results
 We have tested our model on various of datasets: 1) a 5-classes subset of the flower dataset; 2) brain scan images; 3) pathology dataset. Following are some of the performance results.
@@ -60,6 +57,9 @@ For **pathology dataset**, the best accuracy is 80.47% for the three-label class
 
 <!-- ![daisy](plots/mask_plot_roses.png)
 *daisy - original, Saliency of guided backpropagation, Occlusion of size 20 stride 10* -->
+
+## TODO
+- Attention mechanism
 
 ## Reference  
 [MarkoArsenovic](https://github.com/MarkoArsenovic/DeepLearning_PlantDiseases), [Deep Visual Recognition (cs231n)](http://cs231n.github.io/transfer-learning/), [PyTorch.org](http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html) and [PyTorch Git](https://github.com/pytorch/examples/tree/master/imagenet).
