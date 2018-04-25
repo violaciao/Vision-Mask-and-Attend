@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.optim as optim
+from torch.nn.utils import clip_grad_norm
 
 import numpy as np
 import os
@@ -35,6 +36,8 @@ class Trainer(object):
                 config.fc_hids, 
                 config.dropout
                 )
+        if config.gpu:
+            self.model = self.model.cuda()
         self.model_name = 'VSA_{}_{}_{}_{}_{}_{}'.format(config.num_heads,
                 config.num_layers, config.d_k, config.d_v, config.hid_dim, 
                 '-'.join([str(i) for i in config.feature_maps])
@@ -57,7 +60,7 @@ class Trainer(object):
 
 
     def train(self):
-        start_epoch, best_valid_acc = self.load_ckpt()
+        start_epoch, best_valid_acc = self.load_ckpt(self.config.load_best)
 
         for epoch in range(start_epoch, start_epoch + self.config.epochs):
             self.opt.zero_grad()
@@ -72,7 +75,7 @@ class Trainer(object):
             loss, cmat, auc = self.eval(self.valid_dataloader)
             acc = 100 * cmat.acc
             is_best = acc > best_valid_acc
-            msg = 'Validation loss: {:2.4f}, acc: {:2.4f}'
+            msg = 'Validation loss: {:2.4f}, acc: {:2.2f}'
             if is_best:
                 best_valid_acc = acc
                 msg += ' [*]'
@@ -109,6 +112,7 @@ class Trainer(object):
             auc.add(y, o)
 
             loss.backward()
+            clip_grad_norm(self.model.parameters(), self.config.grad_clip)
             self.opt.step()
 
         return total_loss / len(dataloader), cmat, auc

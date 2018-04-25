@@ -12,7 +12,7 @@ def main():
 	LUSC_Patches_FROM =  '/scratch/nsr3/TCGA-LUSC/TCGA-LUSC'  # ./*.jpeg
 	Normal_Patches_FROM = '/scratch/nsr3/normal-lung-cancer'  # ./*.jpeg
 
-	TO_PATH = '/scratch/xc965/DL/TransLearn/data/data_pathology'
+	TO_PATH = '/scratch/xc965/DL/TransLearn/data/data_pathology_small'
 
 	if not os.path.exists(TO_PATH):
 		os.makedirs(TO_PATH)

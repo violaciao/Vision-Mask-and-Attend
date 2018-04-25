@@ -20,7 +20,8 @@ import os
 from os import listdir
 from os.path import isfile, join
 from torchvision import datasets
-import seaborn as sns
+from skimage import color
+from matplotlib import cm
 sns.set(style="darkgrid")
 
 
@@ -29,9 +30,10 @@ parser.add_argument('--model_path', metavar='N', help='path to trained model')
 parser.add_argument('--data_dir', metavar='DIR', help='path to output dir')
 parser.add_argument('--image_path',metavar='N', help='path to the image')
 parser.add_argument('--image_class', metavar='N', help='category name')
-parser.add_argument('--output_dir', metavar='DIR', help='path to output dir', default="output_saliency/")
+parser.add_argument('--output_dir', metavar='DIR', help='path to output dir', default="outs/output_saliency_pth/")
 parser.add_argument('--classes', default=3, type=int, metavar='N', help='number of classes')
-parser.add_argument('--arch',metavar='N',  default="resnet18", help='architecture name, default: resnet18')
+parser.add_argument('--arch', metavar='N',  default="resnet18", help='architecture name, default: resnet18')
+parser.add_argument('--cmap', metavar='N',  default="hot", help='cmap palette for saliency overlays, alternatives eg. "gnuplot".')
 
 args = parser.parse_args()
 
@@ -73,7 +75,7 @@ def load_defined_model(path, num_classes,name):
 
 
 #Load the model
-model= load_defined_model(args.model_path,args.classes,args.arch)
+model = load_defined_model(args.model_path,args.classes,args.arch)
 use_gpu = torch.cuda.is_available()
 
 
@@ -190,7 +192,7 @@ img=Image.open(args.image_path)
 model.eval()
 
 #Extract image name without extension
-file_name=os.path.basename(args.image_path)
+file_name=os.path.basename(args.image_path)[:-4]
 # file_name=os.path.splitext(args.image_path)[0]
 
 
@@ -203,8 +205,9 @@ if not os.path.exists(args.output_dir):
 # ----------------------------------->
 cropped_img = preprocess1(img)
 npimg = cropped_img.numpy()
-plt.imshow(np.transpose(npimg, (1, 2, 0)))
-plt.savefig(args.output_dir+file_name+"(cropped).png")
+img_trans = np.transpose(npimg, (1, 2, 0))
+plt.imshow(img_trans)
+plt.savefig(args.output_dir+args.image_class+"_"+str(file_name)+"(cropped).png")
 plt.show()
 # img.save(args.output_dir+file_name+"(original).png")
 #------------------------------------>
@@ -212,17 +215,31 @@ plt.show()
 
 map=Saliency_map(img,model,preprocess,ind,use_gpu,method)
 
-plot_name=args.output_dir+str(file_name)+"("+method.name+").png"
-plt.imshow(map, cmap='hot', interpolation='nearest')   #cmap='gnuplot'
+plot_name=args.output_dir+args.image_class+"_"+str(file_name)+"("+method.name+").png"
+plt.imshow(map, cmap=args.cmap, interpolation='nearest')   #cmap='gnuplot'
 plt.savefig(plot_name)
 plt.show()       
+
+
+
+# Saliency overlay
+img_grey = color.rgb2gray(img_trans)
+cmap = getattr(plt.cm, args.cmap)
+
+plt.figure(figsize=(7, 7))
+plt.imshow(img_grey, cmap=cm.gray)
+# plt.pcolormesh(map, cmap=plt.cm.hot, alpha=0.45)   #cmap=plt.cm.gnuplot
+plt.pcolormesh(map, cmap=cmap, alpha=0.45) 
+plt.colorbar(shrink=.8).solids.set(alpha=1)
+plt.savefig(args.output_dir+args.image_class+"_"+str(file_name)+"(overlaid).png")
+plt.show()
           
 
 toc=time.time()
-print (toc-tic)
+print("Run time:", toc-tic)
 
 
-print("done")
+print("Done!")
 
 
 

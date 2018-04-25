@@ -20,15 +20,17 @@ class Config(object):
         self.fc_hids = [1024, 256]
 
         # training setting
-        self.epochs = 20
-        self.batch_size = 10
-        self.lr = 1e-5
-        self.dropout = 0.3
-        self.gpu = False
+        self.epochs = 100
+        self.batch_size = 20
+        self.lr = 1e-4
+        self.grad_clip = 1
+        self.dropout = 0.5
+        self.gpu = True
 
         # MISC
         self.seed = 1111
-        self.resume = True
+        self.resume = False
+        self.load_best = False
 
 
     def prepare_dirs(self):
