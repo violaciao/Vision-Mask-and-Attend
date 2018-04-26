@@ -33,7 +33,7 @@ class Trainer(object):
                 config.finetune
                 )
         if config.gpu:
-            self.model = self.model.cuda()
+            self.model.cuda()
         self.model_name = 'SAT_{}_{}_{}_{}'.format(
                 config.emb_dim, config.hid_dim, config.repeat, config.finetune
             )
@@ -82,11 +82,13 @@ class Trainer(object):
             self.save_ckpt(
                     {
                         'epoch': epoch + 1, 
-                        'state_dict': self.model.state_dict(), 
+                        'state_dict': self.model.cpu().state_dict(), 
                         'best_valid_acc': best_valid_acc 
                     }, is_best
                 )
 
+            if self.config.gpu:
+                self.model.cuda()
 
 
     def convert_label(self, y):
@@ -201,7 +203,9 @@ class Trainer(object):
             # set values
             start_epoch = ckpt['epoch']
             best_valid_acc = ckpt['best_valid_acc']
-            self.model.load_state_dict(ckpt['state_dict'])
+            self.model.cpu().load_state_dict(ckpt['state_dict'])
+            if self.config.gpu:
+                self.model.cuda()
 
         return start_epoch, best_valid_acc
 
