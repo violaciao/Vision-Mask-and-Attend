@@ -10,7 +10,7 @@ This is a **PyTorch** experiment on Deep Visual Recognition Masking with two met
 - tensorboard_logger
 
 ## Usage
-1. Download dataset (eg. [flower](http://www.robots.ox.ac.uk/~vgg/data/flowers/17/index.html) ) and process the data with **data_struct_\*.py**;
+1. Download dataset (eg. [flower data](http://www.robots.ox.ac.uk/~vgg/data/flowers/17/index.html) ) and process the data with **data_struct_\*.py**;
 2. Run the model with **model.py** `[options]`; <br />
 Alternatively, to train model with Tensorboard, use **model_tensorboard.py** `[options]`; <br />
 3. Visualize Occlusion Experiments with **occlusion.py** `[options]`; <br />
