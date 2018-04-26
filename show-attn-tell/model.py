@@ -20,25 +20,27 @@ class Decoder(nn.Module):
         self.rnn = nn.GRU(emb_dim + enc_dim, hid_dim, 1, 
                 batch_first=True, dropout=dropout)
         self.init_fc = nn.Linear(enc_dim, hid_dim)
-        self.attn = nn.Linear(enc_dim, hid_dim)
+        self.attn = nn.Linear(enc_dim + hid_dim, 1)
         self.proj = nn.Linear(hid_dim, vocab_size)
 
 
     def attend(self, a, h):
         B, L, D = a.size()
         attn = Variable(torch.zeros(B, L))
+        if a.is_cuda:
+            attn = attn.cuda()
         for i in range(L):
-            attn[:,:,i] = self.attn(torch.cat(a, h))
-        attn = F.softmax(attn.squeeze())
+            attn[:,i] = self.attn(torch.cat((a[:,i,:], h), 1))
+        attn = F.softmax(attn, dim=1)
         return attn
 
 
     def forward(self, y, a, h):
         y = self.embedding(y)
-        attn = self.attend(a, h)
-        z = attn.unsqueeze(1).bmm(a).squeeze()
-        output, h = self.rnn(torch.cat(y, z), h)
-        output = self.proj(output)
+        attn = self.attend(a, h[0])
+        z = attn.unsqueeze(1).bmm(a)
+        output, h = self.rnn(torch.cat((y, z), 2), h)
+        output = self.proj(output.squeeze())
         return output, h, attn
 
 
@@ -71,11 +73,11 @@ class Model(nn.Module):
     def encode(self, img):
         a = self.encoder(img)
         a = a.view(a.size(0), 512, -1) # B x 512 x 196
-        return a
+        return a.transpose(1,2)
 
 
     def init_dec_hidden(self, h, dim):
-        return self.decoder.init_fc(h.mean(dim))
+        return self.decoder.init_fc(h.mean(dim)).unsqueeze(0)
 
 
     def decode(self, y, a, h):

@@ -26,7 +26,7 @@ class Trainer(object):
 
         # define model
         self.model = Model(
-                config.num_classes + 2, 
+                config.num_classes, 
                 config.emb_dim, 
                 config.hid_dim, 
                 config.dropout, 
@@ -34,8 +34,8 @@ class Trainer(object):
                 )
         if config.gpu:
             self.model = self.model.cuda()
-        self.model_name = 'SAT_{}_{}'.format(
-                config.emb_dim, config.hid_dim
+        self.model_name = 'SAT_{}_{}_{}_{}'.format(
+                config.emb_dim, config.hid_dim, config.repeat, config.finetune
             )
 
         # define optimizer and loss function
@@ -89,10 +89,10 @@ class Trainer(object):
 
 
     def convert_label(self, y):
-        y += 2
+        y = y.view(y.size(0), 1)# + 2
         y = y.repeat(1, self.config.repeat+2)
-        y[:,0] = 0     # <SOS>
-        y[:,-1] = 1    # <EOS>
+        #y[:,0] = 0     # <SOS>
+        #y[:,-1] = 1    # <EOS>
         return y
 
 
@@ -106,35 +106,39 @@ class Trainer(object):
         for x, y in dataloader:
             self.opt.zero_grad()
             x, y = Variable(x), Variable(self.convert_label(y))
-            seq_len = y.size(1)
+            B, seq_len = y.size()
+            y_input = Variable(torch.zeros(B,1).long())
             if self.config.gpu:
                 x, y = x.cuda(), y.cuda()
+                y_input = y_input.cuda()
 
             a = self.model.encode(x)
-            h = self.model.init_dec_hidden(a, 2)
+            h = self.model.init_dec_hidden(a, 1)
 
             teacher_forcing = random.random() < self.config.teaching_ratio
             attns = []
             loss = 0
             if teacher_forcing:
-                for i in range(1, seq_len):
-                    o, h, attn = self.model.decode(y[:,i-1], a, h)
+                for i in range(0, seq_len):
+                    o, h, attn = self.model.decode(y_input, a, h)
                     attns.append(attn)
                     loss += self.loss_fn(o, y[:,i])
+                    y_input = y[:,i:i+1]
                     if i == seq_len - 2:
                         pred = o
             else:
-                y_input = y[:,0]
                 for i in range(1, seq_len):
                     o, h, attn = self.model.decode(y_input, a, h)
                     attns.append(attn)
                     loss += self.loss_fn(o, y[:,i])
-                    y_input = o.data.topk(1)
+                    y_input = o.data.topk(1)[1]
+                    y_input = Variable(y_input)
                     if i == seq_len - 2:
                         pred = o
 
-            loss /= float(seq_len - 1)
+            loss /= float(seq_len)
             total_loss += np.asscalar(loss.data.cpu().numpy())
+            y = y[:,-1]
             cmat.add(pred.max(1)[1], y)
             auc.add(y, pred)
 
@@ -155,26 +159,29 @@ class Trainer(object):
         for x, y in dataloader:
             x = Variable(x, volatile=True)
             y = Variable(self.convert_label(y), volatile=True)
-            seq_len = y.size(1)
+            B, seq_len = y.size()
+            y_input = Variable(torch.zeros(B,1).long())
             if self.config.gpu:
                 x, y = x.cuda(), y.cuda()
+                y_input = y_input.cuda()
 
             a = self.model.encode(x)
-            h = self.model.init_dec_hidden(a, 2)
+            h = self.model.init_dec_hidden(a, 1)
 
             attns = []
             loss = 0
-            y_input = y[:,0]
             for i in range(1, seq_len):
                 o, h, attn = self.model.decode(y_input, a, h)
                 attns.append(attn)
                 loss += self.loss_fn(o, y[:,i])
-                y_input = o.data.topk(1)
+                y_input = o.data.topk(1)[1]
+                y_input = Variable(y_input)
                 if i == seq_len - 2:
                     pred = o
 
-            loss /= float(seq_len - 1)
+            loss /= float(seq_len)
             total_loss += np.asscalar(loss.data.cpu().numpy())
+            y = y[:,-1]
             cmat.add(pred.max(1)[1], y)
             auc.add(y, pred)
 

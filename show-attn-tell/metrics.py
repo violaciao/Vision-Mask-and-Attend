@@ -20,6 +20,11 @@ class ConfusionMatrix(object):
         y_pred: int, list, or numpy array, predicted value
         y_target: int, list, or numpy array, target value
         '''
+        if isinstance(y_pred, Variable):
+            y_pred = y_pred.data
+        if isinstance(y_target, Variable):
+            y_target = y_target.data
+
         if not hasattr(y_pred, "__len__") and not hasattr(y_target, "__len__"):
             # add single value pairs
             self.confusion_matrix[y_pred, y_target] += 1

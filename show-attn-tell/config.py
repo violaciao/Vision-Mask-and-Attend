@@ -15,7 +15,7 @@ class Config(object):
         self.hid_dim = 512
 
         # training setting
-        self.epochs = 100
+        self.epochs = 50
         self.batch_size = 20
         self.lr = 1e-4
         self.grad_clip = 1
