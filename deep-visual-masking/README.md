@@ -10,7 +10,7 @@ This is a **PyTorch** experiment on Deep Visual Recognition Masking with two met
 - tensorboard_logger
 
 ## Usage
-1. Download dataset (eg. [flower](http://www.robots.ox.ac.uk/~vgg/data/flowers/17/index.html) ) and process the data with **data_struct_\*.py**;
+1. Download dataset (eg. [flower data](http://www.robots.ox.ac.uk/~vgg/data/flowers/17/index.html) ) and process the data with **data_struct_\*.py**;
 2. Run the model with **model.py** `[options]`; <br />
 Alternatively, to train model with Tensorboard, use **model_tensorboard.py** `[options]`; <br />
 3. Visualize Occlusion Experiments with **occlusion.py** `[options]`; <br />
@@ -53,13 +53,14 @@ For **pathology dataset**, the best accuracy is 80.47% for the three-label class
 ![sunflowers_2](plots/saliency_plot_sunflowers_2.png)
 *sunflowers sample_2 - cropped from original, saliency of guided backpropagation, saliency overlay*
 
+##### *For pathology saliency, go to [this page](pathology_visual_recognition.md).*
+
 <!-- Occlusion of size 20 stride 10 -->
 
 <!-- ![daisy](plots/mask_plot_roses.png)
 *daisy - original, Saliency of guided backpropagation, Occlusion of size 20 stride 10* -->
 
-## TODO
-- Attention mechanism
+---
 
 ## Reference  
 [MarkoArsenovic](https://github.com/MarkoArsenovic/DeepLearning_PlantDiseases), [Deep Visual Recognition (cs231n)](http://cs231n.github.io/transfer-learning/), [PyTorch.org](http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html) and [PyTorch Git](https://github.com/pytorch/examples/tree/master/imagenet).
