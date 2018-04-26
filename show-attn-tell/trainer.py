@@ -50,6 +50,7 @@ class Trainer(object):
     def summary(self):
         print('[INFO] Train on %d samples, validate on %d samples' % (
             len(self.train_dataloader.dataset), len(self.valid_dataloader.dataset)))
+        print('[INOF] Using model [%s]' % self.model_name)
         print('[INFO] Number of model parameters: {:,}'.format(
             sum([p.data.nelement() for p in self.model.parameters()])
             ))
@@ -124,8 +125,6 @@ class Trainer(object):
                     attns.append(attn)
                     loss += self.loss_fn(o, y[:,i])
                     y_input = y[:,i:i+1]
-                    if i == seq_len - 2:
-                        pred = o
             else:
                 for i in range(1, seq_len):
                     o, h, attn = self.model.decode(y_input, a, h)
@@ -133,14 +132,12 @@ class Trainer(object):
                     loss += self.loss_fn(o, y[:,i])
                     y_input = o.data.topk(1)[1]
                     y_input = Variable(y_input)
-                    if i == seq_len - 2:
-                        pred = o
 
             loss /= float(seq_len)
             total_loss += np.asscalar(loss.data.cpu().numpy())
             y = y[:,-1]
-            cmat.add(pred.max(1)[1], y)
-            auc.add(y, pred)
+            cmat.add(o.max(1)[1], y)
+            auc.add(y, o)
 
             loss.backward()
             clip_grad_norm(self.model.parameters(), self.config.grad_clip)
@@ -170,20 +167,21 @@ class Trainer(object):
 
             attns = []
             loss = 0
+            #majority = Majority()
             for i in range(1, seq_len):
                 o, h, attn = self.model.decode(y_input, a, h)
                 attns.append(attn)
                 loss += self.loss_fn(o, y[:,i])
                 y_input = o.data.topk(1)[1]
+                #majority.add(y_input)
                 y_input = Variable(y_input)
-                if i == seq_len - 2:
-                    pred = o
 
             loss /= float(seq_len)
             total_loss += np.asscalar(loss.data.cpu().numpy())
             y = y[:,-1]
-            cmat.add(pred.max(1)[1], y)
-            auc.add(y, pred)
+            cmat.add(o.max(1)[1], y)
+            #cmat.add(majority.vote_result(), y)
+            auc.add(y, o)
 
         return total_loss / len(dataloader), cmat, auc
 

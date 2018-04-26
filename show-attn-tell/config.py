@@ -28,7 +28,7 @@ class Config(object):
         self.seed = 1111
         self.resume = False
         self.load_best = False
-        self.repeat = 1
+        self.repeat = 5
 
 
     def prepare_dirs(self):
