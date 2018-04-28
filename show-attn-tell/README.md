@@ -46,25 +46,25 @@ The table below reports the accuracy of flower dataset with different numbers of
 We visualize the result with repeat number 1 and 5. As we can see, the model always attends to the same region, which corroborates repetition plays little role.
 
 <p align="center">
-<img src="./plot/sat_1_roses.jpg" alt="Drawing", width=100%>
+<img src="./plot/sat_1_roses.jpg" alt="Drawing", width=40%>
 </p>
 
 <p align="center">
-<img src="./plot/sat_5_roses.jpg" alt="Drawing", width=100%>
+<img src="./plot/sat_5_roses.jpg" alt="Drawing", width=80%>
 </p>
 
 <p align="center">
-<img src="./plot/sat_1_sunflowers.jpg" alt="Drawing", width=100%>
+<img src="./plot/sat_1_sunflowers.jpg" alt="Drawing", width=40%>
 </p>
 
 <p align="center">
-<img src="./plot/sat_5_sunflowers.jpg" alt="Drawing", width=100%>
+<img src="./plot/sat_5_sunflowers.jpg" alt="Drawing", width=80%>
 </p>
 
 <p align="center">
-<img src="./plot/sat_1_tulips.jpg" alt="Drawing", width=100%>
+<img src="./plot/sat_1_tulips.jpg" alt="Drawing", width=40%>
 </p>
 
 <p align="center">
-<img src="./plot/sat_5_tulips.jpg" alt="Drawing", width=100%>
+<img src="./plot/sat_5_tulips.jpg" alt="Drawing", width=80%>
 </p>
