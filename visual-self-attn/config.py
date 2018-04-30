@@ -1,8 +1,8 @@
 class Config(object):
 
-    def __init__(self, 
-            data_dir, 
-            ckpt_dir):
+    def __init__(self, data_dir, ckpt_dir, mode):
+        assert mode in ('vgg', 'mean', 'flatten'), \
+                '[ERROR] Mode only supports "vgg", "mean", or "flatten"'
 
         # data setting
         self.data_dir = data_dir
@@ -15,7 +15,7 @@ class Config(object):
         self.d_k = 64
         self.d_v = 64
         self.hid_dim = 128
-        self.mode = 'mean'
+        self.mode = mode
 
         # training setting
         self.epochs = 50
@@ -27,7 +27,7 @@ class Config(object):
 
         # MISC
         self.seed = 1111
-        self.resume = False
+        self.resume = True
         self.load_best = False
 
 
