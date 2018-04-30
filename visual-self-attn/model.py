@@ -64,7 +64,7 @@ class VisualSelfAttn(nn.Module):
         self.mode = mode
 
         # self-attention modules
-        if model != 'vgg':
+        if mode != 'vgg':
             self.attn = nn.ModuleList([
                 MultiHeadAttn(num_heads, input_dim, d_k, d_v, dropout)
                 for i in range(num_layers)])
