@@ -195,17 +195,17 @@ def exp_lr_scheduler(optimizer, epoch, init_lr=BASE_LR, lr_decay_epoch=EPOCH_DEC
 
 # Set the pre-trained model in the ocnfig file by MODEL_FT.
 if MODEL_FT == 'inception_v3':
-    model_ft = models.inception_v3(pretrained=True)   
+    model_ft = models.inception_v3(pretrained=IS_PRETRAINED)   
 elif MODEL_FT == 'resnet18':
-    model_ft = models.resnet18(pretrained=True)
+    model_ft = models.resnet18(pretrained=IS_PRETRAINED)
 elif MODEL_FT == 'resnet152':
-    model_ft = models.resnet152(pretrained=True)
+    model_ft = models.resnet152(pretrained=IS_PRETRAINED)
 elif MODEL_FT == 'vgg16':
-    model_ft = models.vgg16(pretrained=True)
+    model_ft = models.vgg16(pretrained=IS_PRETRAINED)
 elif MODEL_FT == 'densenet':
-    model_ft = models.densenet161(pretrained=True)
+    model_ft = models.densenet161(pretrained=IS_PRETRAINED)
 elif MODEL_FT == 'alexnet':
-    model_ft = models.alexnet(pretrained=True)
+    model_ft = models.alexnet(pretrained=IS_PRETRAINED)
 else:
     model_ft = None
     print("Error from FT Config Setting! Invalid Pretrained Model Name Value!")
@@ -225,6 +225,8 @@ elif 'densenet' in MODEL_FT:
 else:
     num_ftrs = model_ft.fc.in_features
     model_ft.fc = nn.Linear(num_ftrs, NUM_CLASSES)
+    if not IS_PRETRAINED:
+        nn.init.xavier_uniform(model_ft.fc.weight)
 
 
 criterion = nn.CrossEntropyLoss()

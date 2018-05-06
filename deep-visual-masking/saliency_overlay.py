@@ -52,9 +52,13 @@ def diff_states(dict_canonical, dict_subset):
         if v1.size() != v2.size():
             yield (name, v1)                
 
-def load_defined_model(path, num_classes,name):
+def load_defined_model(path, num_classes, name):
     model = models.__dict__[name](num_classes=num_classes)
-    pretrained_state = torch.load(path)
+    try: 
+        pretrained_state = torch.load(path)
+    except:
+        pretrained_state = torch.load(path, map_location=lambda storage, loc: storage)
+    
     new_pretrained_state= OrderedDict()
    
     # for k, v in pretrained_state['state_dict'].items():
@@ -113,7 +117,10 @@ def load_labels(data_dir,resize=(224,224)):
              for x in ['train']}  
     return (dsets['train'].classes)
 
-labels=load_labels(args.data_dir)
+if 'br' in args.output_dir:
+    labels = ("0", "1")
+else:
+    labels=load_labels(args.data_dir)
 print("Classes of image classification :")
 print ("-------------------------------")
 for label in labels:
@@ -188,7 +195,7 @@ if use_gpu:
 tic = time.time()
     
 ind=labels.index(args.image_class)
-img=Image.open(args.image_path)
+img=Image.open(args.image_path).convert('RGB')
 model.eval()
 
 #Extract image name without extension
@@ -207,6 +214,8 @@ cropped_img = preprocess1(img)
 npimg = cropped_img.numpy()
 img_trans = np.transpose(npimg, (1, 2, 0))
 plt.imshow(img_trans)
+
+# plt.imshow
 plt.savefig(args.output_dir+args.image_class+"_"+str(file_name)+"(cropped).png")
 plt.show()
 # img.save(args.output_dir+file_name+"(original).png")
@@ -240,6 +249,4 @@ print("Run time:", toc-tic)
 
 
 print("Done!")
-
-
 
