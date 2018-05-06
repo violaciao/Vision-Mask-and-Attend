@@ -22,25 +22,24 @@ class Trainer(object):
         self.train_dataloader, self.valid_dataloader = get_train_valid_loader(
                 self.config.data_dir, self.config.batch_size, self.config.seed)
         num_channels = self.train_dataloader.dataset[0][0].shape[0]
+        self.num_classes = len(self.train_dataloader.dataset.classes)
 
         # define model
         self.model = VisualSelfAttn(
-                config.num_classes, 
-                num_channels, 
-                config.feature_maps, 
+                self.num_classes, 
                 config.num_heads, 
                 config.num_layers,
                 config.d_k, 
                 config.d_v, 
                 config.hid_dim, 
-                config.fc_hids, 
-                config.dropout
+                config.dropout, 
+                config.mode
                 )
         if config.gpu:
             self.model = self.model.cuda()
-        self.model_name = 'VSA_{}_{}_{}_{}_{}_{}'.format(config.num_heads,
-                config.num_layers, config.d_k, config.d_v, config.hid_dim, 
-                '-'.join([str(i) for i in config.feature_maps])
+        self.model_name = 'VSA_{}_{}_{}_{}_{}_{}'.format(
+                config.mode, config.num_heads, config.num_layers,
+                config.d_k, config.d_v, config.hid_dim 
             )
 
         # define optimizer and loss function
@@ -54,6 +53,7 @@ class Trainer(object):
     def summary(self):
         print('[INFO] Train on %d samples, validate on %d samples' % (
             len(self.train_dataloader.dataset), len(self.valid_dataloader.dataset)))
+        print('[INOF] Using model [%s]' % self.model_name)
         print('[INFO] Number of model parameters: {:,}'.format(
             sum([p.data.nelement() for p in self.model.parameters()])
             ))
@@ -86,17 +86,19 @@ class Trainer(object):
             self.save_ckpt(
                     {
                         'epoch': epoch + 1, 
-                        'state_dict': self.model.state_dict(), 
+                        'state_dict': self.model.cpu().state_dict(), 
                         'best_valid_acc': best_valid_acc 
                     }, is_best
                 )
 
+            if self.config.gpu:
+                self.model.cuda()
+
 
     def train_epoch(self, dataloader):
         total_loss = 0
-        num_classes = self.config.num_classes
-        cmat = ConfusionMatrix(num_classes)
-        auc = AUC(num_classes)
+        cmat = ConfusionMatrix(self.num_classes)
+        auc = AUC(self.num_classes)
         self.model.train()
 
         for x, y in dataloader:
@@ -120,9 +122,8 @@ class Trainer(object):
 
     def eval(self, dataloader):
         total_loss = 0
-        num_classes = self.config.num_classes
-        cmat = ConfusionMatrix(num_classes)
-        auc = AUC(num_classes)
+        cmat = ConfusionMatrix(self.num_classes)
+        auc = AUC(self.num_classes)
         self.model.eval()
 
         for x, y in dataloader:
@@ -155,7 +156,10 @@ class Trainer(object):
             # set values
             start_epoch = ckpt['epoch']
             best_valid_acc = ckpt['best_valid_acc']
-            self.model.load_state_dict(ckpt['state_dict'])
+            self.model.cpu().load_state_dict(ckpt['state_dict'])
+
+            if self.config.gpu:
+                self.model.cuda()
 
         return start_epoch, best_valid_acc
 

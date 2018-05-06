@@ -92,3 +92,29 @@ class AUC(object):
         return 'AUC score: {:.4f}'.format(
                 roc_auc_score(self.y_true, self.y_score))
 
+
+class Majority(object):
+
+    def __init__(self):
+        self.votes = None
+
+
+    def add(self, candidates):
+        if isinstance(candidates, Variable):
+            candidates = candidates.data
+
+        candidates = candidates.cpu().numpy()
+
+        if self.votes is None:
+            self.votes = candidates
+        self.votes = np.concatenate((self.votes, candidates), axis=1)
+
+
+    def vote_result(self):
+        result = []
+        for i in range(len(self.votes)):
+            counts = np.bincount(self.votes[i])
+            major = np.argmax(counts)
+            result.append(major)
+        return result
+

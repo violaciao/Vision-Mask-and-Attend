@@ -1,11 +1,10 @@
 class Config(object):
 
-    def __init__(self, 
-            data_dir, 
-            ckpt_dir):
+    def __init__(self, data_dir, ckpt_dir, mode):
+        assert mode in ('vgg', 'mean', 'flatten'), \
+                '[ERROR] Mode only supports "vgg", "mean", or "flatten"'
 
         # data setting
-        self.num_classes = 5
         self.data_dir = data_dir
         self.ckpt_dir = ckpt_dir
         self.prepare_dirs()
@@ -13,15 +12,14 @@ class Config(object):
         # model setting
         self.num_heads = 8
         self.num_layers = 6
-        self.d_k = 75
-        self.d_v = 75
+        self.d_k = 64
+        self.d_v = 64
         self.hid_dim = 128
-        self.feature_maps = (12, 24) # 25k == num_heads x d_k
-        self.fc_hids = [1024, 256]
+        self.mode = mode
 
         # training setting
-        self.epochs = 100
-        self.batch_size = 20
+        self.epochs = 50
+        self.batch_size = 32
         self.lr = 1e-4
         self.grad_clip = 1
         self.dropout = 0.5
@@ -29,7 +27,7 @@ class Config(object):
 
         # MISC
         self.seed = 1111
-        self.resume = False
+        self.resume = True
         self.load_best = False
 
 
