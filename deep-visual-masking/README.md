@@ -50,6 +50,12 @@ For **pathology dataset**, the best accuracy is 80.47% for the three-label class
 ![sunflowers_1](plots/saliency_plot_sunflowers_1.png)
 *sunflowers sample_1 - cropped from original, saliency of guided backpropagation, saliency overlay*
 
+![tulips1](plots/saliency_plot_tulips_1.png)
+*tulips sample_1 - cropped from original, saliency of guided backpropagation, saliency overlay*
+
+![roses_1](plots/saliency_plot_roses_1.png)
+*roses sample_1 - cropped from original, saliency of guided backpropagation, saliency overlay*
+
 ![sunflowers_2](plots/saliency_plot_sunflowers_2.png)
 *sunflowers sample_2 - cropped from original, saliency of guided backpropagation, saliency overlay*
 
