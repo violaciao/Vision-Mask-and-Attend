@@ -19,18 +19,20 @@ Alternatively, to train model with Tensorboard, use **model_tensorboard.py** `[o
 ## Results
 We have tested our model on various of datasets: 1) a 5-classes subset of the flower dataset; 2) brain scan images; 3) pathology dataset. Following are some of the performance results.
 
-| Data | Model | Batch size | Validation Accuracy |
+| Data | Model | Pre-trained | Validation Accuracy |
 |:--------:|:---------:|:----------:|:----------:|
-|flower_5 | ResNet18 | 10 | 90.35% |
-|flower_5 | ResNet18 | 20 | **95.92%** |
-|brain_T1 | ResNet18 | 10 | 78.4% |
-|brain_T1_FL | ResNet18 | 10 | 57.72% |
-|brain_T1_GD | ResNet18 | 10 | 81.66% |
-|brain_T2 | ResNet18 | 10 | 65.88% |
-|brain_T2_FL | ResNet18 | 10 | 65.66% |
-|brain_MIX | ResNet18 | 10 | **71.14%** |  
-|**pathology** | ResNet18 | 10 | **80.47%** |
-|**pathology** | ResNet152 | 10 | **78.94%** |
+| flower_5 | ResNet18 | Y | **95.92%** |
+|brain_MIX | ResNet18 | Y | **71.14%** |
+| pathology | ResNet18 | N (w/ Xavier init) | 80.24% |  
+|  | ResNet18 | Y | **80.47%** |
+|  | ResNet152 | Y | 78.94% |
+
+<!-- |brain_T1 | ResNet18 | Y | 78.4% |
+|brain_T1_FL | ResNet18 | Y | 57.72% |
+|brain_T1_GD | ResNet18 | Y | 81.66% |
+|brain_T2 | ResNet18 | Y | 65.88% |
+|brain_T2_FL | ResNet18 | Y | 65.66% | -->
+
 
 **NB:**  
 For flower_5 dataset, the best model reaches accuracy 95.92%. <br />
